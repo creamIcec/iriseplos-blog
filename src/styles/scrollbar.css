@@ -1,0 +1,48 @@
+@layer utilities {
+  /* 视觉隐藏轨道，只着色拇指；颜色来自你的 CSS 变量  */
+  .scrollbar-material {
+    /* 默认用 secondary，也可在组件上用 [--sb-thumb:...] 覆盖 */
+    --sb-thumb: color-mix(in srgb, var(--color-secondary) 60%, transparent);
+    --sb-thumb-hover: color-mix(
+      in srgb,
+      var(--color-secondary) 80%,
+      transparent
+    );
+    --sb-track: transparent;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+  }
+  /* Chromium/WebKit */
+  .scrollbar-material::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .scrollbar-material::-webkit-scrollbar-track {
+    background: var(--sb-track); /* 透明=轨道“看不见” */
+  }
+  .scrollbar-material::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb);
+    border-radius: 9999px;
+    border: 3px solid transparent; /* 留出内边距，更像 Material */
+    background-clip: padding-box;
+  }
+  .scrollbar-material:hover::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb-hover);
+  }
+
+  /* 防抖动：即使未溢出也预留沟槽 */
+  .scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
+
+  /* 可选：真正彻底隐藏滚动条（轨道+拇指都没了） */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}

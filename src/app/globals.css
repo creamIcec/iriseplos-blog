@@ -1,0 +1,142 @@
+@import "tailwindcss";
+@import "../styles/plasm-m3.css";
+@import "../styles/global-slider.css";
+@import "../styles/markdown.css";
+@import "../styles/scrollbar.css";
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+:target {
+  scroll-margin-top: 16rem;
+}
+
+body {
+  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+html,
+body {
+  font-family: var(--font-roboto-flex), var(--font-noto-sans-sc), "monospace";
+}
+
+html.hide-cursor,
+html.hide-cursor * {
+  cursor: none !important;
+}
+
+:root,
+:host {
+  --md-sys-color-background: #fff8f4;
+  --md-sys-color-on-background: #201b15;
+  --md-sys-color-surface: #fff8f4;
+  --md-sys-color-surface-dim: #e3d8cf;
+  --md-sys-color-surface-bright: #fff8f4;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #fdf2e8;
+  --md-sys-color-surface-container: #f8ece2;
+  --md-sys-color-surface-container-high: #f2e6dd;
+  --md-sys-color-surface-container-highest: #ece0d7;
+  --md-sys-color-on-surface: #201b15;
+  --md-sys-color-surface-variant: #f2dfce;
+  --md-sys-color-on-surface-variant: #514538;
+  --md-sys-color-inverse-surface: #352f29;
+  --md-sys-color-inverse-on-surface: #fbefe5;
+  --md-sys-color-outline: #837566;
+  --md-sys-color-outline-variant: #d5c4b3;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-surface-tint: #84540c;
+  --md-sys-color-primary: #84540c;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #ffbe6f;
+  --md-sys-color-on-primary-container: #794b01;
+  --md-sys-color-inverse-primary: #fbba6c;
+  --md-sys-color-secondary: #745a3b;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #fed9b3;
+  --md-sys-color-on-secondary-container: #785e3f;
+  --md-sys-color-tertiary: #5c6317;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #c8d179;
+  --md-sys-color-on-tertiary-container: #525a0d;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #93000a;
+}
+
+@theme {
+  --color-background: var(--md-sys-color-background);
+  --color-on-background: var(--md-sys-color-on-background);
+  --color-surface: var(--md-sys-color-surface);
+  --color-surface-dim: var(--md-sys-color-surface-dim);
+  --color-surface-bright: var(--md-sys-color-surface-bright);
+  --color-surface-container-lowest: var(
+    --md-sys-color-surface-container-lowest
+  );
+  --color-surface-container-low: var(--md-sys-color-surface-container-low);
+  --color-surface-container: var(--md-sys-color-surface-container);
+  --color-surface-container-high: var(--md-sys-color-surface-container-high);
+  --color-surface-container-highest: var(
+    --md-sys-color-surface-container-highest
+  );
+  --color-on-surface: var(--md-sys-color-on-surface);
+  --color-surface-variant: var(--md-sys-color-surface-variant);
+  --color-on-surface-variant: var(--md-sys-color-on-surface-variant);
+  --color-inverse-surface: var(--md-sys-color-inverse-surface);
+  --color-inverse-on-surface: var(--md-sys-color-inverse-on-surface);
+  --color-outline: var(--md-sys-color-outline);
+  --color-outline-variant: var(--md-sys-color-outline-variant);
+  --color-shadow: var(--md-sys-color-shadow);
+  --color-scrim: var(--md-sys-color-scrim);
+  --color-surface-tint: var(--md-sys-color-surface-tint);
+  --color-primary: var(--md-sys-color-primary);
+  --color-on-primary: var(--md-sys-color-on-primary);
+  --color-primary-container: var(--md-sys-color-primary-container);
+  --color-on-primary-container: var(--md-sys-color-on-primary-container);
+  --color-inverse-primary: var(--md-sys-color-inverse-primary);
+  --color-secondary: var(--md-sys-color-secondary);
+  --color-on-secondary: var(--md-sys-color-on-secondary);
+  --color-secondary-container: var(--md-sys-color-secondary-container);
+  --color-on-secondary-container: var(--md-sys-color-on-secondary-container);
+  --color-tertiary: var(--md-sys-color-tertiary);
+  --color-on-tertiary: var(--md-sys-color-on-tertiary);
+  --color-tertiary-container: var(--md-sys-color-tertiary-container);
+  --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container);
+  --color-error: var(--md-sys-color-error);
+  --color-on-error: var(--md-sys-color-on-error);
+  --color-error-container: var(--md-sys-color-error-container);
+  --color-on-error-container: var(--md-sys-color-on-error-container);
+}
+
+@theme inline {
+  --font-chinese: var(--font-noto-sans-sc), "monospace";
+  --font-mono: var(--font-roboto-mono), "monospace";
+  --font-ui: var(--font-roboto-flex), var(--font-noto-sans-sc), "sans-serif";
+  --font-article: var(--font-noto-serif-sc), "ui-serif", "Apple Color Emoji",
+    "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "EmojiOne Color",
+    "sans-serif";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-outer,
+  .cursor-inner {
+    transition: none !important;
+  }
+}
+
+@keyframes cursor-ripple-enter {
+  0% {
+    opacity: var(--ripple-opacity, 0.22);
+    transform: translate(-50%, -50%) scale(var(--ripple-start, 0.25));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(var(--ripple-end, 2.2));
+  }
+}

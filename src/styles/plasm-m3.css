@@ -1,0 +1,161 @@
+.markdown-content pre code {
+  /* @apply bg-surface-container text-on-surface-variant block p-4 rounded-2xl overflow-x-auto font-mono; */
+  display: block;
+  padding: 1rem;
+  border-radius: 1rem;
+  overflow-x: auto;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem; /* Body Medium: 14px */
+  line-height: 1.43;
+  letter-spacing: 0.25px;
+}
+
+/* inline code */
+.markdown-content :not(pre) > code {
+  /* @apply bg-surface-container text-on-surface-variant px-2 py-1 rounded font-mono; */
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.25px;
+}
+
+/* Prism.js / rehype-prism-plus generated m3 color*/
+
+.hljs-keyword,
+.token.keyword,
+.token.control-flow,
+.token.atrule {
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
+}
+
+/* 字符串 / 模板字面量 */
+.hljs-string,
+.token.string,
+.token.char,
+.token.inserted {
+  color: var(--md-sys-color-tertiary);
+}
+
+/* 数字 / 常量 / 布尔 */
+.hljs-number,
+.token.number,
+.token.boolean,
+.token.constant,
+.token.symbol {
+  color: var(--md-sys-color-secondary);
+}
+
+/* 函数名 / 方法 */
+.hljs-function,
+.token.function,
+.token.method {
+  color: var(--md-sys-color-primary);
+}
+
+/* 类型 / 类名 / 接口 */
+.hljs-type,
+.token.class-name,
+.token.builtin,
+.token.type-annotation {
+  color: var(--md-sys-color-secondary);
+  font-weight: 500;
+}
+
+/* 属性 / 标签 / 选择器 */
+.hljs-attr,
+.token.attr-name,
+.token.property,
+.token.tag,
+.token.selector {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* 操作符 / 标点 */
+.hljs-operator,
+.token.operator,
+.token.punctuation {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* 注释 */
+.hljs-comment,
+.token.comment {
+  color: var(--md-sys-color-outline);
+  font-style: italic;
+}
+
+/* 变量 / 参数 */
+.token.variable,
+.token.parameter {
+  color: var(--md-sys-color-on-surface);
+}
+
+/* 行号 */
+pre code .line-numbers-rows > span:before {
+  color: var(--md-sys-color-outline-variant);
+}
+
+/* 选中高亮 */
+.markdown-content pre code ::selection {
+  background: color-mix(in oklab, var(--md-sys-color-primary) 24%, transparent);
+}
+
+.markdown-content pre.m3-pre {
+  position: relative;
+  padding-top: 3.25rem; /* 让代码不被工具栏遮住 */
+}
+
+/* 工具栏（置于 pre 内部顶部） */
+.markdown-content .m3-pre__toolbar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  /* 让工具栏看上去比代码块略高一层，但不改变“外框” */
+  background: color-mix(
+    in oklab,
+    var(--md-sys-color-surface-container) 92%,
+    transparent
+  );
+  border-radius: 0.75rem 0.75rem 0 0; /* 轻微圆角以贴合 pre 内圆角 */
+}
+
+/* 语言徽标：等宽 + 胶囊 + 大写 */
+.markdown-content .m3-pre__lang {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em; /* 不要太宽 */
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.5rem;
+  text-transform: none; /* ✅ 保留小写 */
+}
+
+/* 挂载位占位（不影响布局） */
+.markdown-content .m3-pre__copy-mount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* 让 IconButton 贴右上角，看起来像在工具栏右侧 */
+.markdown-content .m3-pre__copy-btn {
+  /* Actify 自己的样式会生效，这里只做微调 */
+  border-radius: 999px;
+}
