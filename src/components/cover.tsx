@@ -34,7 +34,7 @@ export default function Cover({
   waveAmplitude = 20,
   waveLength = 100,
   waveSpeedSec = 12,
-  src = "/cover/default-cover.jpg",
+  src = "/cover/default-cover.webp",
   dimTop = false,
   dimOpacity = 0.4,
 }: CoverProps) {

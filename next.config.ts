@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [new URL("https://picsum.photos/seed/**")],
   },
+
+  outputFileTracingIncludes: {
+    "/api/blog-activity": ["./src/posts/**/*"],
+  },
 };
 
 export default nextConfig;
