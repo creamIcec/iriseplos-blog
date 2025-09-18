@@ -1,4 +1,10 @@
-import { notoSansSC, notoSerifSC, robotoFlex, robotoMono } from "@/utils/fonts";
+import {
+  materialSymbols,
+  notoSansSC,
+  notoSerifSC,
+  robotoFlex,
+  robotoMono,
+} from "@/utils/fonts";
 
 import "katex/dist/katex.min.css";
 import "./globals.css";
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body
-        className={`relative bg-background ${notoSansSC.variable} ${robotoMono.variable} ${robotoFlex.variable} ${notoSerifSC.variable} antialiased`}
+        className={`relative bg-background ${notoSansSC.variable} ${robotoMono.variable} ${robotoFlex.variable} ${notoSerifSC.variable} ${materialSymbols.variable} antialiased`}
       >
         <ThemeProvider
           attribute="data-theme"

@@ -5,6 +5,8 @@ import {
   Noto_Serif_SC,
 } from "next/font/google";
 
+import localFont from "next/font/local";
+
 const robotoFlex = Roboto_Flex({
   subsets: ["latin"],
   display: "swap",
@@ -31,4 +33,18 @@ const notoSerifSC = Noto_Serif_SC({
   variable: "--font-noto-serif-sc",
 });
 
-export { robotoFlex, notoSansSC, robotoMono, notoSerifSC };
+const materialSymbols = localFont({
+  src: [
+    {
+      path: "../../public/font/material-symbols-outlined.woff2",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-symbols",
+  display: "swap",
+  preload: true,
+  fallback: ["sans-serif"],
+});
+
+export { robotoFlex, notoSansSC, robotoMono, notoSerifSC, materialSymbols };
