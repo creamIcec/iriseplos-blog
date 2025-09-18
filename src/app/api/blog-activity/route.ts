@@ -55,6 +55,8 @@ async function getBlogActivityData(period: number = 365): Promise<ActivityMap> {
         const updateDate = stats.mtime;
         const dateKey = updateDate.toISOString().slice(0, 10);
 
+        console.log("日期:" + dateKey);
+
         if (dateKey in activityMap) {
           activityMap[dateKey] += 1;
         }
