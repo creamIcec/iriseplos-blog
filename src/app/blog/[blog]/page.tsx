@@ -15,7 +15,7 @@ export async function generateMetadata({
 }: {
   params: { blog: string };
 }): Promise<Metadata> {
-  const { blog } = await params;
+  const { blog } = params;
   const data = await getPostData(blog);
 
   if (data === undefined) {
