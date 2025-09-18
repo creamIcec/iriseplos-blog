@@ -46,3 +46,4 @@ archive
 
 # draft posts
 src/draft
+.env*.local

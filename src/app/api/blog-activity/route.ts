@@ -7,7 +7,19 @@ import { ActivityMap } from "@/components/client/activity/activity-wall";
 
 export async function GET() {
   try {
-    // 获取博客文章的更新活动
+    // 添加调试信息
+    console.log("Posts directory:", postsDir);
+    console.log("Current working directory:", process.cwd());
+    console.log("__dirname:", __dirname);
+
+    // 检查目录是否存在
+    try {
+      const dirExists = await fs.access(postsDir);
+      console.log("Directory exists:", true);
+    } catch {
+      console.log("Directory does not exist:", postsDir);
+    }
+
     const activityData = await getBlogActivityData(365);
     return NextResponse.json(activityData);
   } catch (error) {
@@ -16,47 +28,42 @@ export async function GET() {
   }
 }
 
-/**
- * 获取博客文章的更新活动数据
- * 使用路由动态获取是为了保证数据最新
- */
 async function getBlogActivityData(period: number = 365): Promise<ActivityMap> {
-  // 初始化结果对象
   const activityMap: ActivityMap = {};
-
   const end = new Date();
   const start = new Date();
-
-  // 如果传入的区间不合适, 使用一年的区间
   start.setDate(end.getDate() - Math.min(Math.max(0, period), 365));
 
-  // 初始化日期范围内的所有日期为0 (没有活动)
+  // 初始化日期范围
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateKey = d.toISOString().slice(0, 10); // YYYY-MM-DD 格式
+    const dateKey = d.toISOString().slice(0, 10);
     activityMap[dateKey] = 0;
   }
 
   try {
+    // 添加更多调试信息
+    console.log("Trying to read directory:", postsDir);
     const files = await fs.readdir(postsDir);
+    console.log("Found files:", files.length);
 
     for (const file of files) {
       if (file.endsWith(".md") || file.endsWith(".mdx")) {
         const filePath = path.join(postsDir, file);
-        const stats = await fs.stat(filePath);
+        console.log("Processing file:", filePath);
 
-        // 博客内容的时间是作者第一次编写的时间, 不代表最新的时间
-        // 同上, 为了让用户可以看到准确的更新(如用于订阅等), 这里我们使用文件系统的最后修改时间
+        const stats = await fs.stat(filePath);
         const updateDate = stats.mtime;
         const dateKey = updateDate.toISOString().slice(0, 10);
 
-        // 如果日期在查询范围内, 增加计数
         if (dateKey in activityMap) {
           activityMap[dateKey] += 1;
         }
       }
     }
   } catch (err) {
-    console.warn("读取博客目录失败", err);
+    console.error("读取博客目录失败:", err);
+    // 返回详细错误信息用于调试
+    throw new Error(`Failed to read posts directory: ${err}`);
   }
 
   return activityMap;
