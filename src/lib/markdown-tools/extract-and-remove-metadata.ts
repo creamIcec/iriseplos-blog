@@ -2,6 +2,7 @@
 import type { Heading, Root as MdastRoot, Parent } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
+import type { ContainerDirective } from "mdast-util-directive";
 
 type PositionRule = "anywhere" | "beforeFirstHeading" | "afterTitle";
 type Strategy = "first" | "last";
@@ -14,11 +15,20 @@ export interface RemarkExtractMetadataOptions {
   splitPattern?: RegExp;
 }
 
-function nodeToText(n: any): string {
+// 防止类型报错
+interface MarkdownNode {
+  type: string;
+  value?: string;
+  children?: MarkdownNode[];
+}
+
+function nodeToText(n: MarkdownNode): string {
   const parts: string[] = [];
-  const walk = (x: any) => {
+  const walk = (x: MarkdownNode) => {
     if (!x) return;
-    if (x.type === "text" || x.type === "inlineCode") parts.push(x.value);
+    if (x.value && (x.type === "text" || x.type === "inlineCode")) {
+      parts.push(x.value);
+    }
     if (x.type === "break") parts.push("\n");
     if (x.type === "paragraph") parts.push("\n");
     if (Array.isArray(x.children)) x.children.forEach(walk);
@@ -30,10 +40,11 @@ function nodeToText(n: any): string {
 // 标题节点转文本（支持链接、强调等内联元素）
 function headingToText(node: Heading): string {
   const parts: string[] = [];
-  const walk = (n: any) => {
-    if (!n) return;
-    if (n.type === "text" || n.type === "inlineCode") parts.push(n.value);
-    if (Array.isArray(n.children)) n.children.forEach(walk);
+  const walk = (x: MarkdownNode) => {
+    if (!x) return;
+    if (x.value && (x.type === "text" || x.type === "inlineCode"))
+      parts.push(x.value);
+    if (Array.isArray(x.children)) x.children.forEach(walk);
   };
   walk(node);
   return parts.join(" ").trim();
@@ -45,7 +56,7 @@ function normalizeDate(raw: string) {
   // 匹配纯日期格式：2025-09-15 / 2025/09/15 / 2025.09.15
   const dateOnly = /^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/.exec(s);
   if (dateOnly) {
-    const [_, y, m, d] = dateOnly;
+    const [, y, m, d] = dateOnly;
     return {
       ok: true,
       dateOnly: `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`,
@@ -59,7 +70,7 @@ function normalizeDate(raw: string) {
       s
     );
   if (dateTime) {
-    const [_, y, m, d, h, min, secRaw] = dateTime;
+    const [, y, m, d, h, min, secRaw] = dateTime;
 
     const dateOnly = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
 
@@ -121,7 +132,7 @@ export const remarkExtractMetadata: Plugin<
 
   return (tree, file) => {
     type Hit = {
-      node: any;
+      node: unknown;
       index: number;
       parent: Parent;
       order: number;
@@ -136,7 +147,7 @@ export const remarkExtractMetadata: Plugin<
     // 第一遍：收集所有目标节点
     visit(
       tree,
-      (node: any, index: number | undefined, parent: Parent | undefined) => {
+      (node, index: number | undefined, parent: Parent | undefined) => {
         // 记录第一个 H1 标题
         if (
           node?.type === "heading" &&
@@ -155,11 +166,12 @@ export const remarkExtractMetadata: Plugin<
           return;
         }
 
-        // 收集指令节点
         if (!(node && node.type === "containerDirective")) return;
         if (!parent || typeof index !== "number") return;
 
-        const name = String(node.name || "").toLowerCase();
+        const name = String(
+          (node as ContainerDirective).name || ""
+        ).toLowerCase();
         if (!["subtitle", "date", "category", "tag"].includes(name)) return;
 
         if (position === "beforeFirstHeading" && seenHeading) return;
@@ -173,29 +185,35 @@ export const remarkExtractMetadata: Plugin<
     if (titleHit) {
       const text = headingToText(titleHit.node);
       if (text) {
-        (file.data as any).extractedTitle = text;
+        file.data.extractedTitle = text;
       }
     }
 
     // 设置默认值
-    (file.data as any).category = "杂项";
-    (file.data as any).categories = ["杂项"];
-    (file.data as any).tags = [];
+    file.data.category = "杂项";
+    file.data.categories = ["杂项"];
+    file.data.tags = [];
 
     if (hits.length === 0 && !titleHit) {
       return; // 没有任何需要处理的节点
     }
 
     // 按类型分组
-    const grouped = {
-      subtitle: [] as Hit[],
-      date: [] as Hit[],
-      category: [] as Hit[],
-      tag: [] as Hit[],
+    const grouped: {
+      subtitle: Hit[];
+      date: Hit[];
+      category: Hit[];
+      tag: Hit[];
+      [key: string]: Hit[];
+    } = {
+      subtitle: [],
+      date: [],
+      category: [],
+      tag: [],
     };
 
     hits.forEach((h) => {
-      (grouped as any)[h.kind].push(h);
+      grouped[h.kind].push(h);
     });
 
     // 策略选择器
@@ -219,48 +237,48 @@ export const remarkExtractMetadata: Plugin<
     /* ---- subtitle ---- */
     const hSubtitle = pick(grouped.subtitle, "subtitle");
     if (hSubtitle) {
-      const text = nodeToText(hSubtitle.node);
-      if (text) (file.data as any).subtitle = text;
+      const text = nodeToText(hSubtitle.node as MarkdownNode);
+      if (text) file.data.subtitle = text;
     }
 
     /* ---- date ---- */
     const hDate = pick(grouped.date, "date");
     if (hDate) {
-      const raw = nodeToText(hDate.node);
+      const raw = nodeToText(hDate.node as MarkdownNode);
       const norm = normalizeDate(raw);
-      (file.data as any).dateRaw = raw;
-      (file.data as any).date = norm.ok ? norm.dateOnly : raw;
-      (file.data as any).dateISO = norm.ok ? norm.iso : undefined;
-      (file.data as any).datetime = norm.ok ? norm.dateTime : raw;
+      file.data.dateRaw = raw;
+      file.data.date = norm.ok ? norm.dateOnly : raw;
+      file.data.dateISO = norm.ok ? norm.iso : undefined;
+      file.data.datetime = norm.ok ? norm.dateTime : raw;
     }
 
     /* ---- category ---- */
     const hCat = pick(grouped.category, "category");
     if (hCat) {
-      const raw = nodeToText(hCat.node);
+      const raw = nodeToText(hCat.node as MarkdownNode);
       const items = raw
         .split(splitPattern)
         .map((s) => s.trim())
         .filter(Boolean);
       const unique = Array.from(new Set(items));
       if (unique.length) {
-        (file.data as any).category = unique[0];
-        (file.data as any).categories = unique;
-        (file.data as any).categoryRaw = raw;
+        file.data.category = unique[0];
+        file.data.categories = unique;
+        file.data.categoryRaw = raw;
       }
     }
 
     /* ---- tag ---- */
     const hTag = pick(grouped.tag, "tag");
     if (hTag) {
-      const raw = nodeToText(hTag.node);
+      const raw = nodeToText(hTag.node as MarkdownNode);
       const items = raw
         .split(splitPattern)
         .map((s) => s.trim())
         .filter(Boolean);
       const unique = Array.from(new Set(items));
-      (file.data as any).tags = unique;
-      (file.data as any).tagsRaw = raw;
+      file.data.tags = unique;
+      file.data.tagsRaw = raw;
     }
 
     // 🔥 关键修复：统一删除所有目标节点（从后往前，避免索引错乱）

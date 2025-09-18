@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 
-const useScroll = () => {
-  const [scrollDistance, setScrollDistance] = useState<number>(0);
-  const [isScrollDown, setIsScrollDown] = useState<boolean>(false);
+// 判断当前用户是否离开了顶部
+const useDetachedFromTop = () => {
+  const [scrollDistance, setScrollDistance] = useState(0);
+  const [isDetached, setIsScrollDown] = useState(false);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
 
-    const effect = (e: Event) => {
+    const effect = () => {
       const currentScrollY = window.scrollY;
       setScrollDistance(window.scrollY);
       setIsScrollDown(currentScrollY > lastScrollY);
@@ -22,7 +23,7 @@ const useScroll = () => {
     };
   }, []);
 
-  return { scrollDistance, isScrollDown };
+  return { scrollDistance, isDetached };
 };
 
-export { useScroll };
+export { useDetachedFromTop };

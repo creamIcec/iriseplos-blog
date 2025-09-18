@@ -15,9 +15,8 @@ export async function debugDirectives(markdown: string) {
     ast.children.slice(0, 5).map((node) => ({
       type: node.type,
       position: node.position,
-      // @ts-ignore
+      // @ts-expect-error node has name
       name: node.name,
-      // @ts-ignore
       data: node.data,
     }))
   );
@@ -27,9 +26,9 @@ export async function debugDirectives(markdown: string) {
       // 只看前3个节点
       console.log(`Node ${index}:`, {
         type: node.type,
-        // @ts-ignore
+        // @ts-expect-error node has name
         name: node.name,
-        // @ts-ignore
+        // @ts-expect-error node has attributes
         attributes: node.attributes,
       });
     }
@@ -69,7 +68,7 @@ export async function extractPreview(
 
     // 提取正文文本
     if (contentStarted) {
-      visit(node, "text", (textNode: any) => {
+      visit(node, "text", (textNode) => {
         if (shouldStop) return;
 
         textContent += textNode.value + " ";

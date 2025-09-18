@@ -1,5 +1,4 @@
 import { Card } from "actify";
-import Image from "next/image";
 import EasterEggAvatar from "./ux/easter-egg/easter-egg-avatar";
 
 interface ProfileProps {

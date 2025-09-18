@@ -43,3 +43,6 @@ next-env.d.ts
 # design archive
 design
 archive
+
+# draft posts
+src/draft

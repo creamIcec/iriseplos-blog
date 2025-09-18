@@ -6,7 +6,7 @@ export const useWindowSize = () => {
   const [isWide, setIsWide] = useState(false);
 
   useEffect(() => {
-    const handle = (ev: UIEvent) => {
+    const handle = () => {
       setIsWide(window.innerWidth >= SUFFICIENT_WIDTH);
     };
 

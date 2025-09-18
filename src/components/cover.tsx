@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { ReactNode, useEffect, useId, useState } from "react";
 
 interface CoverProps {
@@ -36,12 +35,10 @@ export default function Cover({
   waveLength = 100,
   waveSpeedSec = 12,
   src = "/cover/default-cover.jpg",
-  alt = "cover image",
   dimTop = false,
   dimOpacity = 0.4,
 }: CoverProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
   const uid = useId(); // 唯一 id，防止多实例冲突
   useEffect(() => setMounted(true), []);
 

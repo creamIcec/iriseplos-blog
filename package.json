@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
@@ -35,6 +36,8 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.35.0",
     "@tailwindcss/postcss": "^4",
     "@types/escape-html": "^1.0.4",
     "@types/node": "^20",
@@ -42,7 +45,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.3",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.44.0"
   }
 }

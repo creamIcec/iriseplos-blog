@@ -25,6 +25,12 @@ export type OutsideDismissOptions = {
   touchSlop?: number;
 };
 
+interface ExtendedFocusEvent extends FocusEvent {
+  sourceCapabilities?: {
+    firesTouchEvents: boolean;
+  };
+}
+
 export function useOutsideDismiss({
   enabled,
   refs,
@@ -92,8 +98,8 @@ export function useOutsideDismiss({
           }
         };
         const cleanupMove = () => {
-          doc.removeEventListener("pointermove", onMove, true as any);
-          doc.removeEventListener("pointercancel", onCancel, true as any);
+          doc.removeEventListener("pointermove", onMove, true);
+          doc.removeEventListener("pointercancel", onCancel, true);
         };
         doc.addEventListener("pointermove", onMove, {
           capture: true,
@@ -107,7 +113,7 @@ export function useOutsideDismiss({
         // 在 pointerup 时也清掉上面两个
         const onceUp = () => {
           cleanupMove();
-          doc.removeEventListener("pointerup", onceUp, true as any);
+          doc.removeEventListener("pointerup", onceUp, true);
         };
         doc.addEventListener("pointerup", onceUp, {
           capture: true,
@@ -137,10 +143,11 @@ export function useOutsideDismiss({
     const onFocusIn = (e: FocusEvent) => {
       if (!closeOnFocusOut) return;
 
-      // 移动端：若是触摸引起的焦点变化（软键盘、虚拟点击），忽略
-      // 大多数浏览器在触摸事件上带有 sourceCapabilities
-      const anyE = e as any;
-      if (anyE.sourceCapabilities?.firesTouchEvents) return;
+      // 移动端: 若是触摸引起的焦点变化(软键盘、虚拟点击), 忽略; 此处拓展FocusEvent, 添加多数浏览器在触摸事件上带有的 sourceCapabilities 属性
+      // 防止eslint报错。
+      const extendedEvent = e as ExtendedFocusEvent;
+      // 然后判断有没有
+      if (extendedEvent.sourceCapabilities?.firesTouchEvents) return;
 
       const path = (e.composedPath?.() ?? []) as EventTarget[];
       if (ignore?.(e.target, e)) return;
@@ -169,14 +176,14 @@ export function useOutsideDismiss({
     return () => {
       doc.removeEventListener("pointerdown", onPointerDown, {
         capture: true,
-      } as any);
+      });
       doc.removeEventListener("pointerup", onPointerUp, {
         capture: true,
-      } as any);
+      });
       if (closeOnFocusOut)
-        doc.removeEventListener("focusin", onFocusIn, { capture: true } as any);
+        doc.removeEventListener("focusin", onFocusIn, { capture: true });
       if (closeOnEscape)
-        doc.removeEventListener("keydown", onKeyDown, { capture: true } as any);
+        doc.removeEventListener("keydown", onKeyDown, { capture: true });
     };
   }, [
     enabled,

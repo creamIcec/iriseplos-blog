@@ -9,6 +9,8 @@ import path from "path";
 import fs from "fs";
 import { extractPreview } from "../markdown-tools/extract-preview";
 
+import type { Data } from "unified";
+
 export interface BlogMetadata {
   title?: string;
   subtitle?: string;
@@ -34,6 +36,19 @@ export interface BlogMetadata {
 
 export const postsDir = path.join(process.cwd(), "src/posts");
 
+type RawBlogMetaData = Data & {
+  extractedTitle: string;
+  subtitle: string;
+  datetime: string;
+  dateISO: string;
+  dateRaw: string;
+  category: string;
+  categories: string[];
+  categoryRaw: string;
+  tags: string[];
+  tagsRaw: string[];
+};
+
 export async function extractMetadata(
   markdown: string,
   fileName: string
@@ -52,7 +67,7 @@ export async function extractMetadata(
 
   const preview = await extractPreview(markdown, 50);
 
-  const data = file.data as any;
+  const data = file.data as unknown as RawBlogMetaData;
 
   return {
     // 标题 (支持 H1 和 file.data)

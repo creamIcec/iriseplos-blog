@@ -9,15 +9,16 @@ export async function extractHeadings(markdown: string): Promise<Heading[]> {
   const headings: Heading[] = [];
   const slugger = new GithubSlugger();
 
-  visit(tree, "heading", (node: any) => {
+  visit(tree, "heading", (node) => {
     const depth = node.depth as Heading["depth"];
     // 把子节点（text、inlineCode、emphasis等）拼成纯文本
     const text = node.children
-      .map((c: any) =>
+      .map((c) =>
         "value" in c
           ? c.value
           : "children" in c
-          ? c.children?.map((cc: any) => cc.value ?? "").join("")
+          ? //@ts-expect-error cc is undermined
+            c.children?.map((cc) => cc.value ?? "").join("")
           : ""
       )
       .join("")

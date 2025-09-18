@@ -119,7 +119,7 @@ export function applyMaterialTheme(
   theme: Theme,
   ssName = "material-theme"
 ) {
-  let styleObject: Record<string, string> = {};
+  const styleObject: Record<string, string> = {};
   let styleString = ":root,:host{";
   for (const [key, value] of Object.entries(theme)) {
     styleString += `--md-sys-color-${key}:${value};`;

@@ -1,36 +1,23 @@
 "use client";
 
-import { useScroll } from "@/hooks/useScroll";
+import { useDetachedFromTop } from "@/hooks/useScrollDown";
 import { useBlogStore } from "@/lib/store/blog-store";
-import {
-  Button,
-  DrawerActivator,
-  DrawerContent,
-  Fab,
-  FocusRing,
-  Icon,
-  IconButton,
-  NavigationDrawer,
-  Ripple,
-  SnackbarProvider,
-} from "actify";
+import { Fab, FocusRing, Icon, Ripple, SnackbarProvider } from "actify";
 import { usePathname } from "next/navigation";
 import { JSX, ReactNode, useEffect, useRef, useState } from "react";
 
 import clsx from "clsx";
 import Link from "next/link";
 
+import { useWindowSize } from "@/hooks/useWindowSize";
 import Search from "../search";
 import { ThemeChanger } from "../theme-changer";
 import UrlCopyButton from "./url-copy-button";
-import { useWindowSize } from "@/hooks/useWindowSize";
 
-import Image from "next/image";
-import {
-  OutsideDismissOptions,
-  useOutsideDismiss,
-} from "@/hooks/useOutsideDismiss";
+import { useOutsideDismiss } from "@/hooks/useOutsideDismiss";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import useScrolling from "@/hooks/useScrolling";
 
 type NavsStyle = "horizontal" | "vertical";
 
@@ -115,7 +102,8 @@ function getPageInfo(pathname: string): {
 }
 
 export default function Header() {
-  const { scrollDistance, isScrollDown } = useScroll();
+  const { scrollDistance, isDetached } = useDetachedFromTop();
+  const isScrolling = useScrolling(1000);
   const pathname = usePathname();
   const pageInfo = getPageInfo(pathname);
   const blogTitle = useBlogStore((state) => state.title);
@@ -123,6 +111,7 @@ export default function Header() {
 
   const { isWide } = useWindowSize();
   const [isSideOpen, setIsSideOpen] = useState(false);
+  const [isSideButtonExpanded, setIsSideButtonExpanded] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
@@ -167,7 +156,7 @@ export default function Header() {
 
     // 确定滚动状态
     const scrollState: ScrollState =
-      isMounted && isScrollDown && scrollDistance > 150
+      isMounted && isDetached && scrollDistance > 150
         ? "scrolled"
         : "notScrolled";
 
@@ -240,17 +229,31 @@ export default function Header() {
               </div>
             </div>
           ) : (
-            <div className="z-[999] fixed bottom-0 left-0 m-4 flex flex-col-reverse gap-2 items-center">
+            <div className="z-[999] fixed bottom-0 left-0 m-4 flex flex-col-reverse gap-2 items-center transition-all duration-300">
               <Fab
                 aria-label="open-side-nav"
                 size="medium"
-                className="bg-on-secondary-container! shadow-md! shadow-shadow"
+                className={`bg-on-secondary-container! shadow-md! shadow-shadow transition-all duration-300 ${
+                  !isSideButtonExpanded && isScrolling
+                    ? "-translate-x-16"
+                    : null
+                }`}
                 icon={<Icon className="text-surface">Side_Navigation</Icon>}
-                onPress={() => setIsSideOpen(!isSideOpen)}
+                onPress={() => {
+                  if (isSideButtonExpanded) {
+                    setIsSideOpen(!isSideOpen);
+                  } else {
+                    setIsSideButtonExpanded(true);
+                  }
+                }}
               ></Fab>
               <div
                 aria-label="open-theme-changer"
-                className="relative rounded-2xl w-12 h-12 flex justify-center items-center bg-on-secondary-container shadow-md shadow-shadow"
+                className={`relative rounded-2xl w-12 h-12 flex justify-center items-center bg-on-secondary-container shadow-md shadow-shadow transition-all duration-300 ${
+                  isSideButtonExpanded
+                    ? null
+                    : "translate-y-16 opacity-0 pointer-events-none"
+                }`}
               >
                 <Ripple />
                 <ThemeChanger className="text-surface" />
@@ -258,15 +261,20 @@ export default function Header() {
               <div
                 aria-label="close-widgets"
                 className={`
-                  cursor-pointer relative rounded-2xl w-12 h-12 flex justify-center items-center ${
+                  cursor-pointer relative rounded-2xl w-12 h-12 flex justify-center items-center transition-all duration-300 ${
                     isMounted && resolvedTheme == "dark"
                       ? "bg-on-primary-container"
                       : "bg-primary-container"
-                  } shadow-md shadow-shadow`}
+                  } shadow-md shadow-shadow ${
+                  isSideButtonExpanded
+                    ? "null"
+                    : "translate-y-32 opacity-0 pointer-events-none"
+                }`}
                 role="button"
+                onClick={() => setIsSideButtonExpanded(false)}
               >
                 <Ripple />
-                <Icon>Keyboard_Arrow_Left</Icon>
+                <Icon>Keyboard_Arrow_Down</Icon>
               </div>
             </div>
           )}

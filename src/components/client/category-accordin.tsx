@@ -1,19 +1,18 @@
 "use client";
 
+import { ArticleLink } from "@/lib/blog-data/category-relation-data";
 import {
-  Button,
   Accordion,
-  AccordionItem,
-  AccordionHeader,
   AccordionContent,
-  IconButton,
+  AccordionHeader,
+  AccordionItem,
+  Button,
   Icon,
   Ripple,
 } from "actify";
-import SectionTitle from "../section-title";
-import { ArticleLink } from "@/lib/blog-data/category-relation-data";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import SectionTitle from "../section-title";
 
 interface CategoryEntry {
   categoryEntries?: Map<string, ArticleLink[]>;

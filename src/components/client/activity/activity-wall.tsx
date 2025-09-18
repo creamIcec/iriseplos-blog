@@ -399,8 +399,6 @@ export default function ActivityWall({
   );
 }
 
-// ===================== 辅助渲染 =====================
-
 function renderTile(
   day: Date,
   ri: number,

@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 export default function Tool() {
   return (
     <>
-      <main className="flex flex-col gap-4 md:pl-16 md:pr-16 pt-8 min-h-[83vh]">
+      <main className="flex flex-col gap-4 md:pl-16 md:pr-16 pt-8 pl-4 pr-4 min-h-[83vh] max-w-[100vw]">
         <SectionTitle title="一些自用小工具" />
-        <div className="flex flex-row flex-wrap min-w-128 max-w-512 text-on-surface">
+        <div className="flex flex-row flex-wrap text-on-surface">
           <ToolsAccordin />
         </div>
       </main>

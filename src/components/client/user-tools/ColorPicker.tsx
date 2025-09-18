@@ -236,7 +236,7 @@ export default function ColorPicker({ className }: ColorPickerProps) {
                       maxValue={1}
                       step={0.01}
                       value={alpha}
-                      onChange={(value: any) => setAlpha(value)}
+                      onChange={(value) => setAlpha(value as number)}
                       className="w-full"
                     />
                   </div>

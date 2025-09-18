@@ -63,7 +63,7 @@ export default function Cursor() {
       }, cfg.bounceDuration);
     };
 
-    const onPointerDown = (e: PointerEvent) => {
+    const onPointerDown = () => {
       if (!cfg.clickRipple.enabled || !outerRef.current) return;
       // 只在“自定义光标可见且生效”时触发（避免输入框/按钮上误触）
       if (!visible) return;

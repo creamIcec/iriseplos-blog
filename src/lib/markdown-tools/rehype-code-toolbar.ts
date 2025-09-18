@@ -69,7 +69,7 @@ const rehypeCodeToolbar: Plugin<[], Root> = () => (tree) => {
       "m3-pre",
     ]);
     node.properties.className = Array.from(preClass);
-    (node.properties as any)["data-language"] = badge;
+    node.properties["data-language"] = badge;
 
     // 插入 toolbar 到 pre 的开头
     const toolbar = h("div.m3-pre__toolbar", { "data-lang": badge }, [

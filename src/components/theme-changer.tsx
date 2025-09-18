@@ -24,7 +24,7 @@ import {
 } from "actify";
 
 import { useTheme } from "next-themes";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useAutoTheme } from "../hooks/useAutoTheme";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useOutsideDismiss } from "@/hooks/useOutsideDismiss";
@@ -183,8 +183,7 @@ export const ThemeChanger = ({ className }: ThemeChangerProps) => {
               value={hue}
               maxValue={360}
               aria-label="hue"
-              // @ts-ignore
-              onChange={setHue}
+              onChange={(v) => setHue(v as number)}
             />
           </div>
           <div
@@ -203,8 +202,7 @@ export const ThemeChanger = ({ className }: ThemeChangerProps) => {
               maxValue={150}
               value={chroma}
               aria-label="chroma"
-              // @ts-ignore
-              onChange={setChroma}
+              onChange={(v) => setChroma(v as number)}
             />
           </div>
           <div
@@ -223,8 +221,7 @@ export const ThemeChanger = ({ className }: ThemeChangerProps) => {
               value={tone}
               maxValue={100}
               aria-label="tone"
-              // @ts-ignore
-              onChange={setTone}
+              onChange={(v) => setTone(v as number)}
             />
           </div>
           <div

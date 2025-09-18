@@ -8,7 +8,7 @@ type TimerState = "idle" | "work" | "break" | "longBreak";
 
 interface PomodoroTimerProps {
   className?: string;
-  workMin?: number; // 可自定义时长（分钟）
+  workMin?: number;
   shortBreakMin?: number;
   longBreakMin?: number;
 }
@@ -64,7 +64,7 @@ export default function PomodoroTimer({
   const completePhase = () => {
     // 触觉反馈 + 小音效
     try {
-      if ("vibrate" in navigator) (navigator as any).vibrate?.([160, 60, 160]);
+      if ("vibrate" in navigator) navigator.vibrate?.([160, 60, 160]);
       new Audio("/notification.mp3").play().catch(() => {});
     } catch {}
     if ("Notification" in window && Notification.permission === "granted") {

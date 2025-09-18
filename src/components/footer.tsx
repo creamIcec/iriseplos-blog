@@ -31,7 +31,10 @@ export default function Footer() {
               用❤️构建
             </div>
             <div className="w-px bg-outline-variant ml-4 mr-4 self-stretch" />
-            <a className="underline" href="">
+            <a
+              className="underline"
+              href="https://github.com/creamIcec/iriseplos-blog"
+            >
               <div className="flex items-center gap-2">
                 <span>源代码仓库</span>
                 <Icon>Link</Icon>
