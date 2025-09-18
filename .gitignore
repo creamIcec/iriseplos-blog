@@ -47,3 +47,6 @@ archive
 # draft posts
 src/draft
 .env*.local
+
+# generated metadata
+public/activity-data.json

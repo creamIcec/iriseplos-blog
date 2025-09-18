@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "prebuild": "node scripts/ensure-git-history.cjs",
+    "build": "node scripts/generate-blog-latest-time.cjs && next build --turbopack",
+    "vercel-build": "node scripts/ensure-git-history.cjs && node scripts/generate-blog-latest-time.cjs && next build",
     "lint": "next lint",
     "start": "next start"
   },

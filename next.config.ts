@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   },
 
   outputFileTracingIncludes: {
-    "/api/blog-activity": ["./src/posts/**/*"],
+    "/api/blog-activity": ["./public/activity-data.json", "./src/posts/**/*"],
   },
 };
 
