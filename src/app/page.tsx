@@ -82,6 +82,8 @@ export default async function Home() {
                   preview={data.preview}
                   tags={data.tags}
                   link={data.link}
+                  coverUrl={data.coverUrl}
+                  coverAlt={data.coverAlt}
                   className="hover:bg-secondary-container"
                 ></ContentCard>
               ))}
