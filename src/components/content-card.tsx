@@ -17,6 +17,8 @@ export default function ContentCard({
   tags,
   link,
   className,
+  coverUrl,
+  coverAlt,
 }: ContentCardProps) {
   return (
     <Card variant="outlined" className={clsx("overflow-hidden", className)}>
@@ -33,14 +35,16 @@ export default function ContentCard({
               type == "horizontal" ? "flex-1" : "flex-4"
             )}`}
           >
-            <Image
-              priority
-              src="https://picsum.photos/seed/orange/400/600"
-              alt="一张随机图片"
-              width={600}
-              height={900}
-              className="object-cover h-full"
-            />
+            {coverUrl && (
+              <Image
+                priority
+                src={coverUrl}
+                alt={coverAlt || ""}
+                width={600}
+                height={900}
+                className="object-cover h-full"
+              />
+            )}
           </div>
           <div
             className={`flex flex-col gap-2 flex-wrap justify-center items-start ${clsx(

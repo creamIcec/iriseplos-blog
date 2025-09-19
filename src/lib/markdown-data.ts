@@ -19,7 +19,7 @@ import { unified } from "unified";
 import remarkExtractMetadata from "./markdown-tools/extract-and-remove-metadata";
 import { extractHeadings } from "./markdown-tools/extract-headings";
 import rehypeCodeToolbar from "./markdown-tools/rehype-code-toolbar";
-import { extractMetadata, postsDir } from "./blog-data/util";
+import { extractMetadata, pickCoverHref, postsDir } from "./blog-data/util";
 
 export type Heading = {
   depth: 1 | 2 | 3 | 4 | 5 | 6;
@@ -82,26 +82,6 @@ function ensureSafeId(id: string) {
   if (!/^[\w-]+$/.test(id)) {
     throw new Error(`Invalid post id: ${id}`);
   }
-}
-
-function pickCoverHref({
-  envNode,
-  envVercel,
-  coverUrl,
-  coverPath,
-}: {
-  envNode: string | undefined;
-  envVercel: string | undefined;
-  coverUrl?: string;
-  coverPath?: string;
-}) {
-  const isDev = envNode === "development" || envVercel === "development";
-
-  const defaultCoverPath = "/cover/default-cover.webp";
-
-  //开发环境: 优先本地, 其次云端, 没有就回退到defaultCoverPath
-  if (isDev) return coverPath ?? coverUrl ?? defaultCoverPath;
-  return coverUrl ?? coverPath ?? defaultCoverPath;
 }
 
 export async function getPostData(id: string): Promise<PostData | undefined> {

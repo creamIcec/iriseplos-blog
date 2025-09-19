@@ -57,6 +57,26 @@ type RawBlogMetaData = Data & {
   coverPath: string;
 };
 
+export function pickCoverHref({
+  envNode,
+  envVercel,
+  coverUrl,
+  coverPath,
+}: {
+  envNode: string | undefined;
+  envVercel: string | undefined;
+  coverUrl?: string;
+  coverPath?: string;
+}) {
+  const isDev = envNode === "development" || envVercel === "development";
+
+  const defaultCoverPath = "/cover/default-cover.webp";
+
+  //开发环境: 优先本地, 其次云端, 没有就回退到defaultCoverPath
+  if (isDev) return coverPath ?? coverUrl ?? defaultCoverPath;
+  return coverUrl ?? coverPath ?? defaultCoverPath;
+}
+
 export async function extractMetadata(
   markdown: string,
   fileName: string

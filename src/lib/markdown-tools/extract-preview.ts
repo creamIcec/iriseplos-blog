@@ -9,7 +9,6 @@ export async function debugDirectives(markdown: string) {
 
   const ast = processor.parse(markdown) as Root;
 
-  // ✅ 打印前几个节点，看看结构
   console.log(
     "AST children:",
     ast.children.slice(0, 5).map((node) => ({
@@ -47,12 +46,10 @@ export async function extractPreview(
   let shouldStop = false;
   let contentStarted = false;
 
-  // ✅ 跳过开头的元数据区域
   for (let i = 0; i < ast.children.length; i++) {
     const node = ast.children[i];
 
     if (!contentStarted) {
-      // ✅ 跳过标题、各种 directive 和元数据
       if (
         node.type === "heading" || // 跳过标题
         node.type === "containerDirective" ||

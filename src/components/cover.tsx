@@ -12,7 +12,7 @@ interface CoverProps {
 
 export default function Cover({
   children,
-  src,
+  src = "/cover/default-cover.webp",
   alt = "",
   enableMask = true,
 }: CoverProps) {
