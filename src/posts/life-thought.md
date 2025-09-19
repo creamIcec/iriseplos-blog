@@ -18,6 +18,7 @@
 
 :::cover
 path="/assets-local/covers/pixel-allay.webp"
+url="https://fvatprawuixmpa1x.public.blob.vercel-storage.com/images/e92fbd377343046445181d7d0b9815fc0d01597b8836487c5eae62954e3483f5.webp"
 alt="pixel allay"
 :::
 

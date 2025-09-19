@@ -18,6 +18,7 @@
 
 :::cover
 path="/assets-local/covers/sakura-night.webp"
+url="https://fvatprawuixmpa1x.public.blob.vercel-storage.com/images/0241f6507d537a261147b3fa66650170d47295dfbad63e535229f6a6d25a552c.webp"
 alt="A girl standing under a sakura tree in the night"
 :::
 
