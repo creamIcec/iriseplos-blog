@@ -1,15 +1,38 @@
-echo "[husky] running sync-blobs..."
-
 repoRoot="$(dirname -- "$0")/.."
 
-# read variable from .env.local
-if [ -f "$repoRoot/.env.local" ]; then
-  set -a
-  . "$repoRoot/.env.local"
-  set +a
+# 载入本地环境变量
+if [ [ -f "$repoRoot/.env.local" ]; then
+  set -a; . "$repoRoot/.env.local"; set +a
 fi
 
-npm run sync-blobs || {
-  echo "[husky] sync-blobs failed. blocking push."
+should_run=0
+# 检查本次 push 涉及的提交中，是否有文章或封面图片的变更
+# `...` 表示从上次 push 的地方到当前 HEAD
+git diff --name-only -z "HEAD" "$(git merge-base HEAD @{u})" |
+while IFS= read -r -d '' f; do
+  case "$f" in
+    # --- 定制路径 ---
+    "src/posts/"* | "public/assets-local/covers/"*)
+      should_run=1; break;;
+    # ----------------
+  esac
+done
+
+if [ "$should_run" != "1" ]; then
+  echo "[husky] pre-push: No changes in posts or covers, skipping blob check."
+  exit 0
+fi
+
+echo "[husky] pre-push: Checking blobs are up-to-date..."
+BLOB_CHECK_ONLY=1 node scripts/sync-blobs.mjs
+status=$?
+
+if [ $status -eq 2 ]; then
+  echo "[husky] Found pending uploads/rewrite. Commit first (pre-commit will fix), then push again."
   exit 1
-}
+elif [ $status -ne 0 ]; then
+  echo "[husky] sync-blobs check failed (exit $status)."
+  exit $status
+fi
+
+echo "[husky] pre-push check passed."

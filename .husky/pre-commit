@@ -1,0 +1,42 @@
+repoRoot="$(dirname -- "$0")/.."
+
+# 载入本地环境变量
+if [ -f "$repoRoot/.env.local" ]; then
+  set -a; . "$repoRoot/.env.local"; set +a
+fi
+
+# 允许手动强制执行: FORCE_SYNC=1 git commit ...
+if [ "${FORCE_SYNC:-0}" = "1" ]; then
+  should_run=1
+else
+  should_run=0
+  # 只在暂存区包含文章或封面图片时才继续
+  # 使用 -z 和 NUL 分隔符来安全处理带空格的文件名
+
+  # --- 这是关键的修改 ---
+  # 从: git diff ... | while ...
+  # 改为: while ... done < <(git diff ...)
+  while IFS= read -r -d '' f; do
+    # echo "[Debug] Checking staged file: '$f'" # 调试后可以删掉
+    case "$f" in
+      "src/posts/"* | "public/assets-local/covers/"*)
+        # echo "[Debug] MATCHED: '$f'" # 调试后可以删掉
+        should_run=1; break;;
+    esac
+  done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+  # --------------------
+fi
+
+if [ "$should_run" != "1" ]; then
+  echo "[husky] pre-commit: No changes in posts or covers, skipping blob sync."
+  exit 0
+fi
+
+echo "[husky] pre-commit: Syncing blobs & rewriting covers..."
+npm run sync-blobs || {
+  echo "[husky] sync-blobs failed during pre-commit."
+  exit 1
+}
+
+# 脚本可能回写文件/生成清单，将这些改动自动加入本次提交
+git add -A

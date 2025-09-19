@@ -9,12 +9,13 @@ import remarkParse from "remark-parse";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 import glob from "fast-glob";
-import { put } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 
 // ------------ 配置 ------------
 const POSTS_GLOB = "src/posts/**/*.{md,mdx}";
 const BLOB_PREFIX = "images";
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const CHECK_ONLY = process.env.BLOB_CHECK_ONLY === "1";
 // --------------------------------
 
 // === dry-run support (for tests/CI) ===
@@ -51,6 +52,17 @@ function getContentType(ext) {
     ".svg": "image/svg+xml",
   };
   return map[ext.toLowerCase()] ?? "application/octet-stream";
+}
+
+async function findExistingUrlByKey(key) {
+  if (DRY_RUN) return null;
+  // 用 key 当作 prefix，精确命中（服务端前缀匹配）
+  const res = await list({ prefix: key, token: TOKEN });
+  // 兼容不同字段名：pathname / key / url
+  const hit = (res?.blobs || []).find(
+    (b) => b?.pathname === key || b?.key === key
+  );
+  return hit?.url ?? null;
 }
 
 function parseKvFromTextBlock(text) {
@@ -203,20 +215,15 @@ async function processFile(absPath, manifest, urlSet) {
 
     const innerText = innerMatch[1];
     const { map: kv, order } = parseKvFromTextBlock(innerText);
+    const originalUrl = kv.url; // <--- 关键：保存原始 URL
 
     const hasPath = typeof kv.path === "string" && kv.path.trim() !== "";
-    const hasUrl = typeof kv.url === "string" && kv.url.trim() !== "";
     if (!hasPath) continue;
 
     let absImg;
     if (kv.path.startsWith("/")) {
-      // 以 / 开头，表示从 public 根开始的“站点相对路径”
       absImg = path.resolve(repoRoot, "public", kv.path.slice(1));
-    } else if (path.isAbsolute(kv.path)) {
-      // 系统绝对路径（少见）
-      absImg = kv.path;
     } else {
-      // 其他相对路径：相对于 repo 根（兼容历史写法）
       absImg = path.resolve(repoRoot, kv.path);
     }
 
@@ -238,6 +245,7 @@ async function processFile(absPath, manifest, urlSet) {
     const contentType = getContentType(ext);
     const size = buf.length;
 
+    const hasUrl = typeof kv.url === "string" && kv.url.trim() !== "";
     let blobShaFromUrl = null;
     if (hasUrl) {
       const last = kv.url.split("/").pop() || "";
@@ -245,54 +253,71 @@ async function processFile(absPath, manifest, urlSet) {
     }
 
     const key = `${BLOB_PREFIX}/${localSha}${ext}`;
-    let finalUrl = kv.url;
+    let finalUrl = kv.url; // 初始化为原始 URL
 
-    const needUpload = !hasUrl || blobShaFromUrl !== localSha;
-    if (needUpload) {
-      console.log(`[upload] ${path.relative(repoRoot, absPath)} → ${key}`);
-      const res = await putBlob(key, buf, {
-        access: "public",
-        contentType,
-        addRandomSuffix: false,
-        cacheControl: "public, max-age=31536000, immutable",
-        token: TOKEN,
-      });
-      finalUrl = res.url;
-      kv.url = finalUrl;
-
-      const rebuiltInner = buildKeyValueBlock(kv, order, eol);
-      const rebuiltBlock =
-        `${indent}:::cover` +
-        eol +
-        (rebuiltInner
-          ? rebuiltInner
-              .split(eol)
-              .map((line) => indent + line)
-              .join(eol) + eol
-          : "") +
-        `${indent}:::` +
-        (blockText.endsWith(eol) ? eol : "");
-
-      working =
-        working.slice(0, startOffset) + rebuiltBlock + working.slice(endOffset);
-      changed = true;
-      console.log(`[updated] ${path.relative(repoRoot, absPath)}`);
-    } else {
-      // 已经是最新：保持 finalUrl = kv.url
+    const needsUpdate = !hasUrl || blobShaFromUrl !== localSha;
+    if (needsUpdate) {
+      if (CHECK_ONLY) {
+        console.log(`[pending] ${path.relative(repoRoot, absPath)} → ${key}`);
+        processFile.__hadPending = true;
+      } else {
+        const existedUrl = await findExistingUrlByKey(key);
+        if (existedUrl) {
+          console.log(`[reuse] ${key} already exists, skip upload.`);
+          finalUrl = existedUrl;
+        } else {
+          console.log(`[upload] ${path.relative(repoRoot, absPath)} → ${key}`);
+          const res = await putBlob(key, buf, {
+            access: "public",
+            contentType,
+            addRandomSuffix: false,
+            allowOverwrite: true,
+            cacheControl: "public, max-age=31536000, immutable",
+            token: TOKEN,
+          });
+          finalUrl = res.url;
+        }
+      }
     }
 
-    // --- 新增：记录到清单与 URL 列表 ---
-    addManifestItem(manifest, {
-      key,
-      sha: localSha,
-      ext,
-      size,
-      contentType,
-      localPath: path.relative(repoRoot, absImg),
-      postFile: path.relative(repoRoot, absPath),
-      url: finalUrl,
-    });
-    if (finalUrl) urlSet.add(finalUrl);
+    // --- 这是关键的修复逻辑 ---
+    // 如果最终 URL 和原始 URL 不一致 (包括原来没有 URL)，则执行重写
+    const needsRewrite = !CHECK_ONLY && finalUrl && finalUrl !== originalUrl;
+    if (needsRewrite) {
+      changed = true;
+      kv.url = finalUrl; // 更新 map 以便重建
+
+      const newInnerText = buildKeyValueBlock(kv, order, eol);
+      // 重新应用缩进
+      const indentedInnerText = newInnerText
+        .split(eol)
+        .map((line) => indent + line)
+        .join(eol);
+
+      const newBlockText =
+        `${indent}:::cover${eol}` +
+        `${indentedInnerText}${eol}` +
+        `${indent}:::`;
+
+      // 在工作副本中替换旧块
+      working =
+        working.slice(0, startOffset) + newBlockText + working.slice(endOffset);
+    }
+    // -------------------------
+
+    if (!CHECK_ONLY && finalUrl) {
+      addManifestItem(manifest, {
+        key,
+        sha: localSha,
+        ext,
+        size,
+        contentType,
+        localPath: path.relative(repoRoot, absImg),
+        postFile: path.relative(repoRoot, absPath),
+        url: finalUrl,
+      });
+      urlSet.add(finalUrl);
+    }
   }
 
   if (changed) {
@@ -315,11 +340,19 @@ async function main() {
     await processFile(f, manifest, urlSet);
   }
 
-  await saveManifestAndUrls(manifest, urlSet);
-
-  console.log("Cover sync complete.");
-  console.log(`- Manifest written: ${path.relative(repoRoot, manifestPath)}`);
-  console.log(`- URL list written: ${path.relative(repoRoot, urlsListPath)}`);
+  if (CHECK_ONLY) {
+    // 如果任何 processFile 标记了“有待处理项”，用特殊退出码 2
+    if (processFile.__hadPending) {
+      console.log("Cover check: pending uploads/rewrite detected.");
+      process.exit(2);
+    }
+    console.log("Cover check: all up-to-date.");
+  } else {
+    await saveManifestAndUrls(manifest, urlSet);
+    console.log("Cover sync complete.");
+    console.log(`- Manifest written: ${path.relative(repoRoot, manifestPath)}`);
+    console.log(`- URL list written: ${path.relative(repoRoot, urlsListPath)}`);
+  }
 }
 
 main().catch((e) => {
