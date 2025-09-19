@@ -3,6 +3,7 @@ import ContentCard from "@/components/content-card";
 import Cover from "@/components/cover";
 import Profile from "@/components/profile";
 import SectionTitle from "@/components/section-title";
+import EasterEggAvatar from "@/components/ux/easter-egg/easter-egg-avatar";
 import { getStatistics } from "@/lib/blog-data/statistics";
 import { getRecentBlogsMetadata } from "@/lib/blog-data/timeline-relation-data";
 import { Card, Icon, Ripple } from "actify";
@@ -21,8 +22,9 @@ export default async function Home() {
     <>
       <div className="relative -mt-16 mb-8">
         <Cover>
-          <section className="w-full h-full flex flex-row flex-wrap gap-2 md:gap-8 justify-center items-center">
-            <Profile className="pt-16 hidden md:block" />
+          <section className="absolute top-0 left-0 w-full h-full flex flex-row flex-wrap gap-8 justify-center items-center">
+            <EasterEggAvatar className="mt-16 block md:hidden" />
+            <Profile className="pt-16 md:pt-0 hidden md:block" />
             <div className="flex flex-col gap-4 items-center flex-wrap text-white">
               <h1 className="text-3xl md:text-6xl z-1">Apry的笔记本📝</h1>
               <h2 className="text-xl md:text-2xl z-1 text-center md:pt-4">

@@ -50,3 +50,7 @@ src/draft
 
 # generated metadata
 public/activity-data.json
+
+# local assets
+public/assets-local*/
+maintain*/

@@ -49,14 +49,24 @@ export default async function Blog({
     notFound();
   }
 
-  const { title, subtitle, datetime, category, tags, headings, content } = data;
+  const {
+    title,
+    subtitle,
+    datetime,
+    category,
+    tags,
+    headings,
+    content,
+    coverHref,
+    coverAlt,
+  } = data;
 
   const relatedArticles = await getArticleLinksInCategory(category);
 
   return (
     <>
       <BlogTitleSetter title={title} />
-      <Cover />
+      <Cover src={coverHref} alt={coverAlt} />
       <div className="flex flex-row gap-2 text-on-surface justify-between p-4">
         {/*侧边栏*/}
         <aside className="flex-col gap-4 min-w-48 max-w-72 ml-4 hidden md:flex">

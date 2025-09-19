@@ -16,6 +16,11 @@
 思考, 方法论
 :::
 
+:::cover
+path="/assets-local/covers/sakura-night.webp"
+alt="A girl standing under a sakura tree in the night"
+:::
+
 这是一段文字。
 
 ```python

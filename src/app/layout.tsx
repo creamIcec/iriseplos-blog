@@ -14,6 +14,7 @@ import Footer from "@/components/footer";
 import { ThemeProvider } from "next-themes";
 import Cursor from "@/components/ux/cursor";
 import { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
@@ -38,6 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <Analytics />
       <body
         className={`relative bg-background ${notoSansSC.variable} ${robotoMono.variable} ${robotoFlex.variable} ${notoSerifSC.variable} ${materialSymbols.variable} antialiased`}
       >

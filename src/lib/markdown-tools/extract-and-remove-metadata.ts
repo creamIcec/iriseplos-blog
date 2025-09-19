@@ -22,6 +22,17 @@ interface MarkdownNode {
   children?: MarkdownNode[];
 }
 
+// 解析 cover 指令内部的 key="value"（逐行）
+function parseCoverKV(text: string): Record<string, string> {
+  const map: Record<string, string> = {};
+  const kvRe = /^\s*([a-zA-Z0-9_-]+)\s*=\s*"([^"]*)"\s*$/;
+  text.split(/\r?\n/).forEach((line) => {
+    const m = kvRe.exec(line.trim());
+    if (m) map[m[1]] = m[2];
+  });
+  return map;
+}
+
 function nodeToText(n: MarkdownNode): string {
   const parts: string[] = [];
   const walk = (x: MarkdownNode) => {
@@ -144,7 +155,7 @@ export const remarkExtractMetadata: Plugin<
     let seenHeading = false;
     let titleHit: { node: Heading; index: number; parent: Parent } | undefined;
 
-    // 第一遍：收集所有目标节点
+    // 第一遍：收集所有目标节点（含 cover）
     visit(
       tree,
       (node, index: number | undefined, parent: Parent | undefined) => {
@@ -172,7 +183,9 @@ export const remarkExtractMetadata: Plugin<
         const name = String(
           (node as ContainerDirective).name || ""
         ).toLowerCase();
-        if (!["subtitle", "date", "category", "tag"].includes(name)) return;
+
+        if (!["subtitle", "date", "category", "tag", "cover"].includes(name))
+          return;
 
         if (position === "beforeFirstHeading" && seenHeading) return;
         if (position === "afterTitle" && !seenHeading) return;
@@ -198,18 +211,20 @@ export const remarkExtractMetadata: Plugin<
       return; // 没有任何需要处理的节点
     }
 
-    // 按类型分组
+    // 按类型分组（包含 cover）
     const grouped: {
       subtitle: Hit[];
       date: Hit[];
       category: Hit[];
       tag: Hit[];
+      cover: Hit[];
       [key: string]: Hit[];
     } = {
       subtitle: [],
       date: [],
       category: [],
       tag: [],
+      cover: [],
     };
 
     hits.forEach((h) => {
@@ -281,10 +296,22 @@ export const remarkExtractMetadata: Plugin<
       file.data.tagsRaw = raw;
     }
 
-    // 🔥 关键修复：统一删除所有目标节点（从后往前，避免索引错乱）
+    /* ---- cover ---- */
+    const hCover = pick(grouped.cover, "cover");
+    if (hCover) {
+      const raw = nodeToText(hCover.node as unknown as MarkdownNode);
+      const kv = parseCoverKV(raw);
+      const src = (kv.url || kv.path || "").trim();
+      const alt = (kv.alt || "").trim();
+
+      file.data.coverUrl = src || undefined;
+      file.data.coverAlt = alt || undefined;
+      file.data.coverPath = kv.path || undefined;
+    }
+
+    // 🔥 统一删除：标题 + 所有被命中的指令（含 cover）
     const allNodesToRemove: Array<{ parent: Parent; index: number }> = [];
 
-    // 添加标题到删除列表
     if (titleHit) {
       allNodesToRemove.push({
         parent: titleHit.parent,
@@ -292,7 +319,6 @@ export const remarkExtractMetadata: Plugin<
       });
     }
 
-    // 添加所有指令节点到删除列表
     hits.forEach((hit) => {
       allNodesToRemove.push({
         parent: hit.parent,
@@ -309,7 +335,6 @@ export const remarkExtractMetadata: Plugin<
       grouped_by_parent.get(parent)!.push(index);
     });
 
-    // 对每个 parent，从大到小的 index 开始删除
     grouped_by_parent.forEach((indices, parent) => {
       indices.sort((a, b) => b - a); // 降序
       indices.forEach((index) => {

@@ -8,13 +8,18 @@
     "build": "node scripts/generate-blog-latest-time.cjs && next build --turbopack",
     "vercel-build": "node scripts/ensure-git-history.cjs && node scripts/generate-blog-latest-time.cjs && next build --turbopack",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "prepare": "husky",
+    "sync-blobs": "node scripts/sync-blobs.mjs"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.3.0",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/blob": "^2.0.0",
     "actify": "^0.5.5",
     "clsx": "^2.1.1",
     "escape-html": "^1.0.3",
+    "fast-glob": "^3.3.3",
     "github-slugger": "^2.0.0",
     "next": "15.5.3",
     "next-themes": "^0.4.6",
@@ -49,6 +54,7 @@
     "eslint-config-next": "^15.5.3",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.4.0",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5",
     "typescript-eslint": "^8.44.0"

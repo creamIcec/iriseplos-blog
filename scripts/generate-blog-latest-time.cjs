@@ -52,7 +52,7 @@ function gitContributors(file) {
   try {
     files = (await fs.readdir(POSTS_DIR)).filter((f) => /\.(md|mdx)$/.test(f));
   } catch (e) {
-    console.error("读取 posts 目录失败：", POSTS_DIR, e?.message || e);
+    console.error("读取 posts 目录失败: ", POSTS_DIR, e?.message || e);
   }
 
   // 活动热力图(近365天)
@@ -69,7 +69,6 @@ function gitContributors(file) {
 
     let info = gitLastCommitInfo(full);
     if (!info) {
-      // 兜底，用 mtime；注意：部署机上可能不准，但本地/自托管可用
       try {
         const st = await fs.stat(full);
         info = {

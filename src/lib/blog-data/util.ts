@@ -32,6 +32,11 @@ export interface BlogMetadata {
 
   //文件名
   filename?: string;
+
+  //封面图
+  coverUrl?: string;
+  coverAlt?: string;
+  coverPath?: string;
 }
 
 export const postsDir = path.join(process.cwd(), "src/posts");
@@ -47,6 +52,9 @@ type RawBlogMetaData = Data & {
   categoryRaw: string;
   tags: string[];
   tagsRaw: string[];
+  coverUrl: string;
+  coverAlt: string;
+  coverPath: string;
 };
 
 export async function extractMetadata(
@@ -93,6 +101,10 @@ export async function extractMetadata(
 
     //文件名(去掉.md)
     filename: fileName.slice(0, -3),
+
+    coverUrl: data?.coverUrl,
+    coverAlt: data?.coverAlt,
+    coverPath: data?.coverPath,
   };
 }
 

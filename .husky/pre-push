@@ -1,0 +1,15 @@
+echo "[husky] running sync-blobs..."
+
+repoRoot="$(dirname -- "$0")/.."
+
+# read variable from .env.local
+if [ -f "$repoRoot/.env.local" ]; then
+  set -a
+  . "$repoRoot/.env.local"
+  set +a
+fi
+
+npm run sync-blobs || {
+  echo "[husky] sync-blobs failed. blocking push."
+  exit 1
+}

@@ -27,6 +27,18 @@ export type Heading = {
   id: string; // 方便锚点跳转
 };
 
+export type PostData = {
+  title: string;
+  subtitle?: string;
+  datetime: string; // 或 Date，视你渲染器而定
+  category?: string;
+  tags?: string[];
+  headings: Heading[];
+  content: string; // HTML
+  coverHref?: string; // 渲染用的最终地址
+  coverAlt?: string;
+};
+
 export async function renderMarkdownToHtml(markdown: string, filename: string) {
   // 先提取元数据
   const metadata = await extractMetadata(markdown, filename);
@@ -65,27 +77,76 @@ export async function renderMarkdownToHtml(markdown: string, filename: string) {
   };
 }
 
-export async function getPostData(id: string) {
+function ensureSafeId(id: string) {
+  // 只允许字母数字、连字符、下划线，防止 ../ 穿越
+  if (!/^[\w-]+$/.test(id)) {
+    throw new Error(`Invalid post id: ${id}`);
+  }
+}
+
+function pickCoverHref({
+  envNode,
+  envVercel,
+  coverUrl,
+  coverPath,
+}: {
+  envNode: string | undefined;
+  envVercel: string | undefined;
+  coverUrl?: string;
+  coverPath?: string;
+}) {
+  const isDev = envNode === "development" || envVercel === "development";
+
+  const defaultCoverPath = "/cover/default-cover.webp";
+
+  //开发环境: 优先本地, 其次云端, 没有就回退到defaultCoverPath
+  if (isDev) return coverPath ?? coverUrl ?? defaultCoverPath;
+  return coverUrl ?? coverPath ?? defaultCoverPath;
+}
+
+export async function getPostData(id: string): Promise<PostData | undefined> {
+  ensureSafeId(id);
+
   const fullPath = path.join(postsDir, `${id}.md`);
 
-  if (!fs.existsSync(fullPath)) {
+  try {
+    fs.access(fullPath, () => {});
+  } catch {
     return undefined;
   }
 
   const fileContents = fs.readFileSync(fullPath, "utf8");
 
-  const { title, subtitle, category, datetime, tags, content } =
-    await renderMarkdownToHtml(fileContents, `${id}.md`);
-  console.log(datetime);
+  const {
+    title,
+    subtitle,
+    category,
+    datetime,
+    tags,
+    content,
+    coverUrl,
+    coverAlt,
+    coverPath,
+  } = await renderMarkdownToHtml(fileContents, `${id}.md`);
+
   const TOCHeadings = await extractHeadings(fileContents);
 
+  const coverHref = pickCoverHref({
+    envNode: process.env.NODE_ENV,
+    envVercel: process.env.VERCEL_ENV,
+    coverUrl,
+    coverPath,
+  });
+
   return {
-    title, //标题
-    subtitle, //副标题
-    datetime, //日期时间
-    category, //类型
+    title: title || "",
+    subtitle,
+    datetime: datetime || "2018-03-26",
+    category,
     tags,
-    headings: TOCHeadings, //目录项
-    content: String(content), //渲染成HTML的内容
+    headings: TOCHeadings,
+    content: String(content),
+    coverHref,
+    coverAlt,
   };
 }
