@@ -3,6 +3,7 @@ import CategoryLink from "@/components/client/category-link";
 import CodeToolbarClient from "@/components/client/code-toolbar";
 import Cover from "@/components/cover";
 import TOC from "@/components/toc";
+import { listArticles } from "@/lib/blog-data/blog-data-service";
 import { getArticleLinksInCategory } from "@/lib/blog-data/category-relation-data";
 import { getPostData } from "@/lib/markdown-data";
 import { Card, Icon, List, ListItem, Ripple } from "actify";
@@ -10,7 +11,13 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-static";
 export const revalidate = 600;
+
+export async function generateStaticParams() {
+  const names = await listArticles();
+  return names.map((s) => ({ blog: s }));
+}
 
 export async function generateMetadata({
   params,

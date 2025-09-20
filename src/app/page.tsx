@@ -10,8 +10,6 @@ import { Card, Icon, Ripple } from "actify";
 import { Metadata } from "next";
 import Link from "next/link";
 
-export const revalidate = 600;
-
 export const metadata: Metadata = {
   title: "主页 | Apry的笔记本",
 };

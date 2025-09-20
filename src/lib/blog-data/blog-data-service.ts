@@ -1,6 +1,13 @@
 import { cacheAccessFactory } from "../cache-tool";
 import { CACHE_EXPIRATION_TIME } from "../CONSTANTS";
-import { extractAllMetadata, type BlogMetadata } from "./util";
+import {
+  extractAllMetadata,
+  isArticleFile,
+  postsDir,
+  toPostId,
+  type BlogMetadata,
+} from "./util";
+import fs from "fs";
 
 let cachedMetadata: BlogMetadata[] | null = null;
 let lastCacheTime = 0;
@@ -35,6 +42,15 @@ export async function getAllBlogMetadataInternal(
     console.error("获取博客元数据失败:", error);
     return [];
   }
+}
+
+// 获取所有文章文件名列表
+export async function listArticles() {
+  const entries = fs.readdirSync(postsDir, { withFileTypes: true });
+
+  return entries
+    .filter((d) => d.isFile() && isArticleFile(d.name))
+    .map((d) => toPostId(d.name));
 }
 
 /**

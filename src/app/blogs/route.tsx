@@ -4,10 +4,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSortedBlogMetadata } from "@/lib/blog-data/blog-data-service";
 import { Metadata } from "next";
-import { CACHE_EXPIRATION_TIME } from "@/lib/CONSTANTS";
-
-export const revalidate = 600;
-
 export const metadata: Metadata = {
   title: "文章",
 };
@@ -26,7 +22,7 @@ export async function GET(req: NextRequest) {
   const res = NextResponse.redirect(url, 307);
   res.headers.set(
     "Cache-Control",
-    `s-maxage=${CACHE_EXPIRATION_TIME}, stale-while-revalidate=59`
+    "public, max-age=0, s-maxage=600, stale-while-revalidate=86400, stale-if-error=86400"
   );
   return res;
 }

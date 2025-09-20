@@ -129,10 +129,14 @@ export async function extractMetadata(
 }
 
 export async function extractAllMetadata() {
-  const allFileNames = fs.readdirSync(postsDir);
+  const entries = fs.readdirSync(postsDir, { withFileTypes: true });
+
+  const articleFiles = entries
+    .filter((d) => d.isFile() && isArticleFile(d.name))
+    .map((d) => d.name);
 
   const allMetadata = await Promise.all(
-    allFileNames.map(async (name) => {
+    articleFiles.map(async (name) => {
       const content = fs.readFileSync(path.join(postsDir, name), "utf8");
       return await extractMetadata(content, name);
     })
@@ -140,3 +144,6 @@ export async function extractAllMetadata() {
 
   return allMetadata;
 }
+
+export const isArticleFile = (name: string) => /\.(md|mdx)$/i.test(name);
+export const toPostId = (name: string) => name.replace(/\.(md|mdx)$/i, "");
