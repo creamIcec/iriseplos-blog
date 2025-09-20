@@ -43,13 +43,35 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // 静态产物一年强缓存
+      // 静态产物: 一年强缓存
       {
         source: "/_next/static/:path*",
         headers: [
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // 缓存sitemap和robots.txt
+      {
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0" },
+          {
+            key: "CDN-Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      // 604800 = 1星期
+      {
+        source: "/robots.txt",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0" },
+          {
+            key: "CDN-Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
           },
         ],
       },

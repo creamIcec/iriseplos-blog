@@ -39,6 +39,7 @@ export type PostData = {
   content: string; // HTML
   coverHref?: string; // 渲染用的最终地址
   coverAlt?: string;
+  filename?: string; //和slug一致
 };
 
 export async function renderMarkdownToHtml(markdown: string, filename: string) {
@@ -107,6 +108,7 @@ async function getPostDataInternal(id: string): Promise<PostData | undefined> {
     coverUrl,
     coverAlt,
     coverPath,
+    filename,
   } = await renderMarkdownToHtml(fileContents, `${id}.md`);
 
   const TOCHeadings = await extractHeadings(fileContents);
@@ -128,6 +130,7 @@ async function getPostDataInternal(id: string): Promise<PostData | undefined> {
     content: String(content),
     coverHref,
     coverAlt,
+    filename,
   };
 }
 

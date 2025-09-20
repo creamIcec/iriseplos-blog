@@ -39,6 +39,7 @@
     "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
+    "serialize-javascript": "^6.0.2",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "zustand": "^5.0.8"
@@ -51,6 +52,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/serialize-javascript": "^5.0.4",
     "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.3",
     "eslint-plugin-react": "^7.37.5",

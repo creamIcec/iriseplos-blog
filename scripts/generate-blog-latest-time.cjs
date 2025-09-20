@@ -7,6 +7,7 @@ const path = require("node:path");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const POSTS_DIR = path.join(process.cwd(), "src/posts");
 const ACT_OUT = path.join(process.cwd(), "public/activity-data.json");
+const LASTMOD_OUT = path.join(process.cwd(), "public/blog-lastmod.json");
 
 function sh(cmd) {
   try {
@@ -19,11 +20,18 @@ function sh(cmd) {
   }
 }
 
-async function generateActivityData() {
+function isArticle(name) {
+  return /\.(md|mdx)$/i.test(name);
+}
+function toSlug(name) {
+  return name.replace(/\.(md|mdx)$/i, "");
+}
+
+async function generateActivityDataAndLastmod() {
   // 文章文件
   let files = [];
   try {
-    files = (await fs.readdir(POSTS_DIR)).filter((f) => /\.(md|mdx)$/.test(f));
+    files = (await fs.readdir(POSTS_DIR)).filter(isArticle);
     console.log(`找到 ${files.length} 个文章文件`);
   } catch (e) {
     console.error("读取 posts 目录失败: ", POSTS_DIR, e?.message || e);
@@ -39,10 +47,7 @@ async function generateActivityData() {
     activity[d.toISOString().slice(0, 10)] = 0;
   }
 
-  // 获取所有博客文章的目录相对路径
   const postsRelativePath = path.relative(process.cwd(), POSTS_DIR);
-
-  // 不使用 --follow，而是使用通配符获取所有文章提交记录
   const cmd = `git log --date=iso --name-only --format="%cI" -- "${postsRelativePath}/*.md" "${postsRelativePath}/*.mdx"`;
   console.log(`执行命令: ${cmd}`);
 
@@ -53,66 +58,49 @@ async function generateActivityData() {
   } else {
     const lines = gitLog.split("\n");
     let currentDate = null;
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-
-      // 日期行（ISO格式）
-      if (line.match(/^\d{4}-\d{2}-\d{2}T/)) {
+      if (/^\d{4}-\d{2}-\d{2}T/.test(line)) {
         currentDate = line;
-      }
-      // 文件路径行
-      else if (currentDate && line.startsWith(postsRelativePath)) {
-        const filePath = line;
-        if (
-          filePath &&
-          (filePath.endsWith(".md") || filePath.endsWith(".mdx"))
-        ) {
+      } else if (currentDate && line.startsWith(postsRelativePath)) {
+        if (isArticle(line)) {
           const dateKey = currentDate.slice(0, 10);
-          if (dateKey in activity) {
-            activity[dateKey] += 1;
-            console.log(`记录活动: ${dateKey} - ${filePath}`);
-          }
+          if (dateKey in activity) activity[dateKey] += 1;
         }
       }
     }
   }
 
-  // 单独处理每个文件的历史（如果需要更准确的历史记录）
+  // ===== 新增：生成每篇文章的最后提交时间 =====
+  const lastmodMap = {};
+
   for (const f of files) {
     const full = path.join(POSTS_DIR, f);
     const relativePath = path.relative(process.cwd(), full);
 
-    // 对每个文件单独使用 --follow
-    const fileCmd = `git log --date=iso --format="%cI" --follow -- "${relativePath}"`;
-    const fileHistory = sh(fileCmd);
+    // 取该文件最后一次提交时间（跟随重命名）
+    let last = sh(
+      `git log -1 --date=iso --format="%cI" --follow -- "${relativePath}"`
+    );
 
-    if (fileHistory) {
-      const dates = fileHistory.split("\n").filter(Boolean);
-      for (const date of dates) {
-        const dateKey = date.slice(0, 10);
-        if (dateKey in activity) {
-          activity[dateKey] += 1;
-          console.log(`文件历史记录: ${dateKey} - ${f}`);
-        }
-      }
-    } else {
-      // 如果没有Git历史，使用文件修改时间
+    // 没有 git 历史时的兜底：用文件 mtime（本地跑脚本时至少能用）
+    if (!last) {
       try {
         const st = await fs.stat(full);
-        const isoDate = new Date(st.mtime).toISOString();
-        const key = isoDate.slice(0, 10);
-        if (key in activity) {
-          activity[key] += 1;
-          console.log(`使用文件修改时间: ${key} - ${f}`);
-        }
+        last = new Date(st.mtime).toISOString();
       } catch {}
+    }
+
+    if (last) {
+      lastmodMap[toSlug(f)] = last;
     }
   }
 
   await fs.mkdir(PUBLIC_DIR, { recursive: true });
   await fs.writeFile(ACT_OUT, JSON.stringify(activity, null, 2), "utf8");
+  await fs.writeFile(LASTMOD_OUT, JSON.stringify(lastmodMap, null, 2), "utf8");
   console.log("Generated:", ACT_OUT);
+  console.log("Generated:", LASTMOD_OUT);
 }
 
-generateActivityData().catch(console.error);
+generateActivityDataAndLastmod().catch(console.error);

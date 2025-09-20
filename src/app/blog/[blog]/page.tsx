@@ -5,11 +5,13 @@ import Cover from "@/components/cover";
 import TOC from "@/components/toc";
 import { listArticles } from "@/lib/blog-data/blog-data-service";
 import { getArticleLinksInCategory } from "@/lib/blog-data/category-relation-data";
+import { SITE } from "@/lib/CONSTANTS";
 import { getPostData } from "@/lib/markdown-data";
 import { Card, Icon, List, ListItem, Ripple } from "actify";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import serialize from "serialize-javascript";
 
 export const dynamic = "force-static";
 export const revalidate = 600;
@@ -33,6 +35,8 @@ export async function generateMetadata({
     };
   }
 
+  const url = `${SITE}/blog/${blog}`;
+
   return {
     title: `${data.title}`,
     description: data.subtitle || `阅读关于 ${data.title} 的文章`,
@@ -43,6 +47,38 @@ export async function generateMetadata({
       publishedTime: data.datetime,
       tags: data.tags,
     },
+    alternates: {
+      canonical: url,
+    },
+  };
+}
+
+interface ArticleJsonLd {
+  postId?: string;
+  title?: string;
+  subtitle?: string;
+  publishedISO?: string;
+  updatedISO?: string;
+  authorName?: string;
+}
+
+function buildArticleJsonLd({
+  postId,
+  title,
+  subtitle,
+  publishedISO,
+  updatedISO,
+  authorName = "Apry",
+}: ArticleJsonLd) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description: subtitle,
+    dateModified: updatedISO,
+    datePublished: publishedISO ?? updatedISO,
+    mainEntityOfPage: `${SITE}/blog/${postId}`,
+    author: [{ "@type": "Person", name: authorName }],
   };
 }
 
@@ -64,12 +100,27 @@ export default async function Blog({ params }: { params: { blog: string } }) {
     content,
     coverHref,
     coverAlt,
+    filename,
   } = data;
+
+  const jsonLd = buildArticleJsonLd({
+    postId: filename,
+    title,
+    subtitle,
+    updatedISO: datetime,
+  });
 
   const relatedArticles = await getArticleLinksInCategory(category);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        // serialize(..., { isJSON: true }) 会安全转义 < > & \u2028 \u2029 等危险字符
+        dangerouslySetInnerHTML={{
+          __html: serialize(jsonLd, { isJSON: true }),
+        }}
+      />
       <BlogTitleSetter title={title} />
       <Cover src={coverHref} alt={coverAlt} enableMask={false} />
       <div className="flex flex-row gap-2 text-on-surface justify-between p-4">
