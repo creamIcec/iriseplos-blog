@@ -20,7 +20,6 @@ import remarkExtractMetadata from "./markdown-tools/extract-and-remove-metadata"
 import { extractHeadings } from "./markdown-tools/extract-headings";
 import rehypeCodeToolbar from "./markdown-tools/rehype-code-toolbar";
 import { extractMetadata, pickCoverHref, postsDir } from "./blog-data/util";
-import { unstable_cache, unstable_noStore } from "next/cache";
 import { cacheAccessFactory } from "./cache-tool";
 import { CACHE_EXPIRATION_TIME } from "./CONSTANTS";
 

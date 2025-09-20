@@ -3,6 +3,7 @@
 
 import { unstable_cache, unstable_noStore } from "next/cache";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 type AsyncFn = (...args: any[]) => Promise<any>;
 
 // 区分开发和生产环境。开发环境下直通访问, 生产环境带缓存策略
