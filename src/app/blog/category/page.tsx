@@ -7,6 +7,8 @@ import {
 import { getCategories } from "@/lib/blog-data/statistics";
 import { Metadata } from "next";
 
+export const revalidate = 600;
+
 export const metadata: Metadata = {
   title: "分类",
 };

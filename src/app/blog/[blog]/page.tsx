@@ -10,6 +10,8 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const revalidate = 600;
+
 export async function generateMetadata({
   params,
 }: {

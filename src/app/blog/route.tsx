@@ -5,6 +5,8 @@ import { getSortedBlogMetadata } from "@/lib/blog-data/blog-data-service";
 import { Metadata } from "next";
 import { CACHE_EXPIRATION_TIME } from "@/lib/CONSTANTS";
 
+export const revalidate = 600;
+
 export const metadata: Metadata = {
   title: "文章",
 };
