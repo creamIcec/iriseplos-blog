@@ -1,4 +1,5 @@
 // scripts/ensure-git-history.cjs
+
 const { execSync } = require("node:child_process");
 
 function sh(cmd) {

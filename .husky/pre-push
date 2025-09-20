@@ -1,7 +1,7 @@
 repoRoot="$(dirname -- "$0")/.."
 
 # 载入本地环境变量
-if [ [ -f "$repoRoot/.env.local" ]; then
+if [ -f "$repoRoot/.env.local" ]; then
   set -a; . "$repoRoot/.env.local"; set +a
 fi
 

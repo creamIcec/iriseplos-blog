@@ -35,6 +35,11 @@ fi
 echo "[husky] pre-commit: Syncing blobs & rewriting covers..."
 npm run sync-blobs || {
   echo "[husky] sync-blobs failed during pre-commit."
+}
+
+echo "[husky] pre-commit: Generating blog activity data..."
+npm run sync-activity-data || {
+  echo "[husky] generating blog activity data failed during pre-commit."
   exit 1
 }
 

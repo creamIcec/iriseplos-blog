@@ -10,7 +10,8 @@
     "lint": "next lint",
     "start": "next start",
     "prepare": "husky",
-    "sync-blobs": "node scripts/sync-blobs.mjs"
+    "sync-blobs": "node scripts/sync-blobs.mjs",
+    "sync-activity-data": "node scripts/generate-blog-latest-time.cjs"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.3.0",
