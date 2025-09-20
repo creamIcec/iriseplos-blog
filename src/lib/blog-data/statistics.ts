@@ -1,5 +1,6 @@
-import { getAllBlogMetadata } from "./blog-data-service";
-
+import { cacheAccessFactory } from "../cache-tool";
+import { CACHE_EXPIRATION_TIME } from "../CONSTANTS";
+import { getAllBlogMetadataInternal } from "./blog-data-service";
 export interface BlogStatistics {
   articleCount: number;
   categoryCount: number;
@@ -9,9 +10,9 @@ export interface BlogStatistics {
   recentArticles: number; // 最近30天的文章数
 }
 
-export async function getStatistics(): Promise<BlogStatistics> {
+async function getStatisticsInternal(): Promise<BlogStatistics> {
   try {
-    const allMetadata = await getAllBlogMetadata();
+    const allMetadata = await getAllBlogMetadataInternal();
 
     // 获取所有分类
     const categories = [
@@ -64,27 +65,27 @@ export async function getStatistics(): Promise<BlogStatistics> {
 /**
  * 仅获取分类列表
  */
-export async function getCategories(): Promise<string[]> {
-  const stats = await getStatistics();
+async function getCategoriesInternal(): Promise<string[]> {
+  const stats = await getStatisticsInternal();
   return stats.categories;
 }
 
 /**
  * 仅获取标签列表
  */
-export async function getTags(): Promise<string[]> {
-  const stats = await getStatistics();
+async function getTagsInternal(): Promise<string[]> {
+  const stats = await getStatisticsInternal();
   return stats.tags;
 }
 
 /**
  * 获取标签使用统计
  */
-export async function getTagsWithCount(): Promise<
+async function getTagsWithCountInternal(): Promise<
   Array<{ tag: string; count: number }>
 > {
   try {
-    const allMetadata = await getAllBlogMetadata();
+    const allMetadata = await getAllBlogMetadataInternal();
     const tagMap = new Map<string, number>();
 
     allMetadata.forEach((meta) => {
@@ -101,3 +102,27 @@ export async function getTagsWithCount(): Promise<
     return [];
   }
 }
+
+export const getStatistics = cacheAccessFactory(
+  getStatisticsInternal,
+  ["stats", "summary"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getCategories = cacheAccessFactory(
+  getCategoriesInternal,
+  ["stats", "categories"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getTags = cacheAccessFactory(
+  getTagsInternal,
+  ["stats", "tags"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getTagsWithCount = cacheAccessFactory(
+  getTagsWithCountInternal,
+  ["stats", "tags-with-count"],
+  CACHE_EXPIRATION_TIME
+);

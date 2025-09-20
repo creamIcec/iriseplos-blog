@@ -1,3 +1,5 @@
+import { cacheAccessFactory } from "../cache-tool";
+import { CACHE_EXPIRATION_TIME } from "../CONSTANTS";
 import { extractAllMetadata, type BlogMetadata } from "./util";
 
 let cachedMetadata: BlogMetadata[] | null = null;
@@ -5,9 +7,18 @@ let lastCacheTime = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
 /**
+ * 清除缓存（开发环境或数据更新时使用）
+ */
+export function clearBlogCache(): void {
+  cachedMetadata = null;
+  lastCacheTime = 0;
+}
+
+/**
  * 获取所有博客元数据（带缓存）
  */
-export async function getAllBlogMetadata(
+// 对于本函数而言, 相当于使用了二级缓存
+export async function getAllBlogMetadataInternal(
   forceRefresh = false
 ): Promise<BlogMetadata[]> {
   const now = Date.now();
@@ -27,18 +38,10 @@ export async function getAllBlogMetadata(
 }
 
 /**
- * 清除缓存（开发环境或数据更新时使用）
- */
-export function clearBlogCache(): void {
-  cachedMetadata = null;
-  lastCacheTime = 0;
-}
-
-/**
  * 按时间排序的元数据
  */
-export async function getSortedBlogMetadata(): Promise<BlogMetadata[]> {
-  const allMetadata = await getAllBlogMetadata();
+export async function getSortedBlogMetadataInternal(): Promise<BlogMetadata[]> {
+  const allMetadata = await getAllBlogMetadataInternal(true);
 
   return [...allMetadata].sort((a, b) => {
     const dateA = a.dateISO || a.datetime || "";
@@ -46,3 +49,15 @@ export async function getSortedBlogMetadata(): Promise<BlogMetadata[]> {
     return dateB.localeCompare(dateA);
   });
 }
+
+export const getAllBlogMetadata = cacheAccessFactory(
+  getAllBlogMetadataInternal,
+  ["blog-metadata"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getSortedBlogMetadata = cacheAccessFactory(
+  getSortedBlogMetadataInternal,
+  ["blog-sorted-metadata"],
+  CACHE_EXPIRATION_TIME
+);

@@ -4,11 +4,14 @@ import CodeToolbarClient from "@/components/client/code-toolbar";
 import Cover from "@/components/cover";
 import TOC from "@/components/toc";
 import { getArticleLinksInCategory } from "@/lib/blog-data/category-relation-data";
+import { CACHE_EXPIRATION_TIME } from "@/lib/CONSTANTS";
 import { getPostData } from "@/lib/markdown-data";
 import { Card, Icon, List, ListItem, Ripple } from "actify";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export const revalidate = CACHE_EXPIRATION_TIME;
 
 export async function generateMetadata({
   params,

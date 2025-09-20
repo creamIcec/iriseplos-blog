@@ -5,7 +5,10 @@ import {
   getArticleLinksInCategory,
 } from "@/lib/blog-data/category-relation-data";
 import { getCategories } from "@/lib/blog-data/statistics";
+import { CACHE_EXPIRATION_TIME } from "@/lib/CONSTANTS";
 import { Metadata } from "next";
+
+export const revalidate = CACHE_EXPIRATION_TIME;
 
 export const metadata: Metadata = {
   title: "分类",

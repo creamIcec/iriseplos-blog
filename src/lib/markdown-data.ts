@@ -20,6 +20,9 @@ import remarkExtractMetadata from "./markdown-tools/extract-and-remove-metadata"
 import { extractHeadings } from "./markdown-tools/extract-headings";
 import rehypeCodeToolbar from "./markdown-tools/rehype-code-toolbar";
 import { extractMetadata, pickCoverHref, postsDir } from "./blog-data/util";
+import { unstable_cache, unstable_noStore } from "next/cache";
+import { cacheAccessFactory } from "./cache-tool";
+import { CACHE_EXPIRATION_TIME } from "./CONSTANTS";
 
 export type Heading = {
   depth: 1 | 2 | 3 | 4 | 5 | 6;
@@ -84,14 +87,12 @@ function ensureSafeId(id: string) {
   }
 }
 
-export async function getPostData(id: string): Promise<PostData | undefined> {
+async function getPostDataInternal(id: string): Promise<PostData | undefined> {
   ensureSafeId(id);
 
   const fullPath = path.join(postsDir, `${id}.md`);
 
-  try {
-    fs.access(fullPath, () => {});
-  } catch {
+  if (!fs.existsSync(fullPath)) {
     return undefined;
   }
 
@@ -130,3 +131,10 @@ export async function getPostData(id: string): Promise<PostData | undefined> {
     coverAlt,
   };
 }
+
+// 导出 API。在开发环境下为了实时预览, 不走缓存; 生产环境下使用10分钟的缓存策略
+export const getPostData = cacheAccessFactory(
+  getPostDataInternal,
+  ["post"],
+  CACHE_EXPIRATION_TIME
+);

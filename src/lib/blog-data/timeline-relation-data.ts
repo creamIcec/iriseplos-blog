@@ -1,4 +1,6 @@
-import { getSortedBlogMetadata } from "./blog-data-service";
+import { cacheAccessFactory } from "../cache-tool";
+import { CACHE_EXPIRATION_TIME } from "../CONSTANTS";
+import { getSortedBlogMetadataInternal } from "./blog-data-service";
 import { pickCoverHref } from "./util";
 
 export interface NavItemMetadata {
@@ -15,11 +17,11 @@ export interface NavItemMetadata {
 /**
  * 获取最近的博客元数据
  */
-export async function getRecentBlogsMetadata(
+export async function getRecentBlogsMetadataInternal(
   count: number
 ): Promise<NavItemMetadata[]> {
   try {
-    const sortedMetadata = await getSortedBlogMetadata();
+    const sortedMetadata = await getSortedBlogMetadataInternal();
     const actualCount = Math.min(Math.max(0, count), sortedMetadata.length);
 
     return sortedMetadata.slice(0, actualCount).map((meta) => ({
@@ -46,12 +48,12 @@ export async function getRecentBlogsMetadata(
 /**
  * 获取指定分类的最近文章
  */
-export async function getRecentBlogsByCategory(
+export async function getRecentBlogsByCategoryInternal(
   category: string,
   count: number = 5
 ): Promise<NavItemMetadata[]> {
   try {
-    const sortedMetadata = await getSortedBlogMetadata();
+    const sortedMetadata = await getSortedBlogMetadataInternal();
 
     const categoryPosts = sortedMetadata
       .filter((meta) => meta.category === category)
@@ -74,12 +76,12 @@ export async function getRecentBlogsByCategory(
 /**
  * 获取包含指定标签的最近文章
  */
-export async function getRecentBlogsByTag(
+export async function getRecentBlogsByTagInternal(
   tag: string,
   count: number = 5
 ): Promise<NavItemMetadata[]> {
   try {
-    const sortedMetadata = await getSortedBlogMetadata();
+    const sortedMetadata = await getSortedBlogMetadataInternal();
 
     const taggedPosts = sortedMetadata
       .filter((meta) => meta.tags?.includes(tag))
@@ -98,3 +100,21 @@ export async function getRecentBlogsByTag(
     return [];
   }
 }
+
+export const getRecentBlogsByTag = cacheAccessFactory(
+  getRecentBlogsByTagInternal,
+  ["recent", "tag"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getRecentBlogsByCategory = cacheAccessFactory(
+  getRecentBlogsByCategoryInternal,
+  ["recent", "category"],
+  CACHE_EXPIRATION_TIME
+);
+
+export const getRecentBlogsMetadata = cacheAccessFactory(
+  getRecentBlogsMetadataInternal,
+  ["recent", "metadata"],
+  CACHE_EXPIRATION_TIME
+);
