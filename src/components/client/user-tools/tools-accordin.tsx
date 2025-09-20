@@ -12,7 +12,7 @@ import PomodoroTimer from "./Pomodoro";
 
 export default function ToolsAccordin() {
   return (
-    <Accordion open={[, true]}>
+    <Accordion>
       <AccordionItem>
         <AccordionHeader asChild>
           {({ active }) => (

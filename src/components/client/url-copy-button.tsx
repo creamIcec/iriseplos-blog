@@ -44,6 +44,7 @@ export default function UrlCopyButton({
         toastKeyRef.current = undefined;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [copied]); // 移除 toastState 依赖
 
   return (

@@ -5,6 +5,9 @@ import SectionTitle from "@/components/section-title";
 import EasterEggAvatar from "@/components/ux/easter-egg/easter-egg-avatar";
 import { Metadata } from "next";
 
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "关于",
 };

@@ -32,6 +32,9 @@ export const metadata: Metadata = {
   },
 };
 
+// 全站缓存策略10min, 需要实时刷新的局部覆盖
+export const revalidate = 600;
+
 export default function RootLayout({
   children,
 }: Readonly<{
