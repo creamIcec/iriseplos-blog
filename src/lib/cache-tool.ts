@@ -13,7 +13,7 @@ export function cacheAccessFactory<T extends AsyncFn>(
   keyParts: string[],
   revalidateTime: number
 ): T {
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = true; //process.env.NODE_ENV === "production";
 
   if (isProd) {
     // 生产: 用 next/cache 的数据缓存(ISR)

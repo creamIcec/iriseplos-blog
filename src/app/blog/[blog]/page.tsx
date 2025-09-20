@@ -17,7 +17,7 @@ export async function generateMetadata({
 }: {
   params: { blog: string };
 }): Promise<Metadata> {
-  const { blog } = params;
+  const { blog } = await params;
   const data = await getPostData(blog);
 
   if (data === undefined) {
@@ -39,11 +39,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function Blog({
-  params,
-}: {
-  params: Promise<{ blog: string }>;
-}) {
+export default async function Blog({ params }: { params: { blog: string } }) {
   const { blog } = await params;
   const data = await getPostData(blog);
 
