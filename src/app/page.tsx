@@ -39,11 +39,11 @@ export default async function Home() {
         <aside className="hidden md:flex flex-col flex-wrap flex-1">
           <div className="flex flex-col flex-wrap gap-4">
             <h3 className="text-3xl text-primary pt-4">日历</h3>
-            <div className="pt-4">
+            <div className="pt-4 flex flex-col">
               <Calendar className="font-ui" />
             </div>
           </div>
-          <Card variant="filled" className="mt-8 p-4">
+          <Card variant="filled" className="mt-8 p-4 w-80">
             <div className="flex flex-row flex-nowrap min-w-16 w-full max-w-full text-on-primary justify-center items-center text-xl">
               <div className="flex flex-col gap-1 items-center">
                 <span>文章</span>

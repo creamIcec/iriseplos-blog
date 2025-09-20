@@ -2,7 +2,7 @@
 
 import type { ToastState } from "@react-stately/toast";
 import { Icon, IconButton } from "actify";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useRef } from "react";
 
 interface UrlCopyButtonProps {
   toastState?: ToastState<ReactNode>;
@@ -14,6 +14,8 @@ export default function UrlCopyButton({
   className,
 }: UrlCopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  // 使用 ref 记录当前的 toast key，避免依赖 toastState
+  const toastKeyRef = useRef<string | number | undefined>(undefined);
 
   const copyCurrentUrl = async () => {
     try {
@@ -26,20 +28,23 @@ export default function UrlCopyButton({
   };
 
   useEffect(() => {
-    if (!copied) {
+    if (!copied || !toastState) {
       return;
     }
 
-    const key = toastState?.add("复制成功~", {
+    // 只在 copied 变为 true 时添加 toast
+    toastKeyRef.current = toastState.add("复制成功~", {
       timeout: 3000,
     });
 
+    // 清理函数
     return () => {
-      if (key) {
-        toastState?.close(key);
+      if (toastKeyRef.current && toastState) {
+        toastState.close(toastKeyRef.current.toString());
+        toastKeyRef.current = undefined;
       }
     };
-  }, [copied, toastState]);
+  }, [copied]); // 移除 toastState 依赖
 
   return (
     <>

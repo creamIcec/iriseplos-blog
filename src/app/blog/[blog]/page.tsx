@@ -66,7 +66,7 @@ export default async function Blog({
   return (
     <>
       <BlogTitleSetter title={title} />
-      <Cover src={coverHref} alt={coverAlt} />
+      <Cover src={coverHref} alt={coverAlt} enableMask={false} />
       <div className="flex flex-row gap-2 text-on-surface justify-between p-4">
         {/*侧边栏*/}
         <aside className="flex-col gap-4 min-w-48 max-w-72 ml-4 hidden md:flex">
@@ -87,22 +87,24 @@ export default async function Blog({
                 {<TOC headings={headings} />}
               </section>
             </Card>
-            <Card variant="filled">
-              <section className="h-full w-full p-4 flex flex-col flex-wrap gap-4">
-                <h3 className="text-2xl font-light text-on-secondary">
-                  同栏目的其他文章
-                </h3>
-                <List className="rounded-lg min-h-48 max-h-256 overflow-auto! scrollbar-material scrollbar-gutter-stable">
-                  {relatedArticles
-                    .filter((link) => link.link !== blog)
-                    .map((link) => (
-                      <Link key={link.link} href={`/blog/${link.link}`}>
-                        <ListItem>{link.title}</ListItem>
-                      </Link>
-                    ))}
-                </List>
-              </section>
-            </Card>
+            {relatedArticles.length > 1 && (
+              <Card variant="filled">
+                <section className="h-full w-full p-4 flex flex-col flex-wrap gap-4">
+                  <h3 className="text-2xl font-light text-on-secondary">
+                    同栏目的其他文章
+                  </h3>
+                  <List className="rounded-lg min-h-48 max-h-256 overflow-auto! scrollbar-material scrollbar-gutter-stable">
+                    {relatedArticles
+                      .filter((link) => link.link !== blog)
+                      .map((link) => (
+                        <Link key={link.link} href={`/blog/${link.link}`}>
+                          <ListItem>{link.title}</ListItem>
+                        </Link>
+                      ))}
+                  </List>
+                </section>
+              </Card>
+            )}
           </div>
         </aside>
 
@@ -111,8 +113,8 @@ export default async function Blog({
         <main className="flex flex-col flex-1 min-w-0">
           {/*标题部分*/}
           <div className="max-w-[512px] flex flex-wrap font-article flex-col gap-6">
-            <h3 className="text-4xl/snug">{title}</h3>
-            <h4 className="text-xl/tight font-bold">{subtitle}</h4>
+            <h1 className="text-4xl/snug">{title}</h1>
+            <span className="text-xl/tight font-bold">{subtitle}</span>
             <div className="relative text-on-primary rounded-4xl bg-primary flex items-center justify-evenly max-w-84 p-2 gap-4">
               <Ripple />
               <div className="flex gap-1 items-center">

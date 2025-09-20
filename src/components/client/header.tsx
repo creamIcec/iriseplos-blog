@@ -19,6 +19,8 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import useScrolling from "@/hooks/useScrolling";
 
+import type { ToastState } from "@react-stately/toast";
+
 type NavsStyle = "horizontal" | "vertical";
 
 function NavItem({ children, link }: { children?: ReactNode; link?: string }) {
@@ -117,11 +119,14 @@ export default function Header() {
     setIsMounted(true);
   }, []);
 
-  function getHeaderContent(type: NavsStyle) {
+  function getHeaderContent(
+    type: NavsStyle,
+    globalState?: ToastState<ReactNode>
+  ) {
     // 决策表: 定义每种页面类型在不同滚动状态下的内容
     const contentMap: Record<
       PageType,
-      Record<ScrollState, () => JSX.Element>
+      Record<ScrollState, (globalState?: ToastState<ReactNode>) => JSX.Element>
     > = {
       home: {
         scrolled: () => <Navs type={type} />,
@@ -139,14 +144,12 @@ export default function Header() {
         notScrolled: () => <Navs type={type} />,
       },
       blog: {
-        scrolled: () => (
+        scrolled: (globalState?: ToastState<ReactNode>) => (
           <>
             {!isWide && <Navs type="vertical" />}
             <div className="w-full text-tertiary font-bold flex flex-row items-center justify-center gap-2">
               <h1 className="text-center">{blogTitle}</h1>
-              <SnackbarProvider>
-                {(globalState) => <UrlCopyButton toastState={globalState} />}
-              </SnackbarProvider>
+              <UrlCopyButton toastState={globalState} />
             </div>
           </>
         ),
@@ -161,7 +164,7 @@ export default function Header() {
         : "notScrolled";
 
     // 根据页面类型和滚动状态返回对应内容
-    return contentMap[pageInfo.type][scrollState]();
+    return contentMap[pageInfo.type][scrollState](globalState);
   }
 
   const detached = scrollDistance > 5;
@@ -205,7 +208,10 @@ export default function Header() {
               >
                 <NavItem link="/">Apry的笔记本</NavItem>
               </h1>
-              {getHeaderContent(isWide ? "horizontal" : "vertical")}
+              {getHeaderContent(
+                isWide ? "horizontal" : "vertical",
+                globalState
+              )}
               <div className="flex flex-row gap-4 items-center">
                 <Search toastState={globalState} />
                 <ThemeChanger
@@ -225,7 +231,10 @@ export default function Header() {
                 }`}
                 ref={panelRef}
               >
-                {getHeaderContent(isWide ? "horizontal" : "vertical")}
+                {getHeaderContent(
+                  isWide ? "horizontal" : "vertical",
+                  globalState
+                )}
               </div>
             </div>
           ) : (

@@ -126,7 +126,7 @@ export default function Calendar({
   return (
     <div
       className={clsx(
-        "bg-surface rounded-xl shadow-sm border border-outline-variant p-6 w-80",
+        "bg-surface rounded-xl shadow-sm border border-outline-variant w-80 p-6",
         className
       )}
     >
