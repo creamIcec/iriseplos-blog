@@ -53,32 +53,64 @@ export async function generateMetadata({
   };
 }
 
-interface ArticleJsonLd {
-  postId?: string;
-  title?: string;
+interface ArticleJsonLdInput {
+  postId: string;
+  url: string; // 绝对 canonical
+  title: string;
   subtitle?: string;
-  publishedISO?: string;
-  updatedISO?: string;
-  authorName?: string;
+  publishedISO: string; // 2025-09-17T08:00:00+08:00
+  updatedISO: string; // 2025-09-18T09:12:00+08:00
+  authorName?: string; // 和页面一致
+  imageUrl?: string; // 绝对 URL
+  imageWidth?: number; // 建议 >= 1200
+  imageHeight?: number;
+  tags?: string[];
+  inLanguage?: string; // "zh-CN"
 }
 
-function buildArticleJsonLd({
-  postId,
-  title,
-  subtitle,
-  publishedISO,
-  updatedISO,
-  authorName = "Apry",
-}: ArticleJsonLd) {
+function buildArticleJsonLd(input: ArticleJsonLdInput) {
+  const {
+    postId,
+    url,
+    title,
+    subtitle,
+    publishedISO,
+    updatedISO,
+    authorName = "Apry",
+    imageUrl,
+    imageWidth,
+    imageHeight,
+    tags = [],
+    inLanguage = "zh-CN",
+  } = input;
+
+  const image = imageUrl
+    ? {
+        "@type": "ImageObject",
+        url: imageUrl,
+        width: imageWidth ?? 1200,
+        height: imageHeight ?? 630,
+      }
+    : undefined;
+
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
+    mainEntryOfPage: { "@type": "WebPage", "@id": url },
     headline: title,
     description: subtitle,
+    url,
+    datePublished: publishedISO,
     dateModified: updatedISO,
-    datePublished: publishedISO ?? updatedISO,
-    mainEntityOfPage: `${SITE}/blog/${postId}`,
+    inLanguage,
+    isAccessibleForFree: true,
+    ...(image ? { image } : {}),
     author: [{ "@type": "Person", name: authorName }],
+    publisher: {
+      "@type": "Organization",
+      name: "IriseBlog",
+    },
+    ...(tags.length ? { keywords: tags.join(", ") } : {}),
   };
 }
 
@@ -103,12 +135,26 @@ export default async function Blog({ params }: { params: { blog: string } }) {
     filename,
   } = data;
 
+  const url = `${SITE}/blog/${blog}`;
+
   const jsonLd = buildArticleJsonLd({
-    postId: filename,
+    postId: filename!,
+    url,
     title,
     subtitle,
+    publishedISO: datetime,
     updatedISO: datetime,
+    authorName: "Apry",
+    imageUrl: coverHref?.startsWith("http")
+      ? coverHref
+      : `${SITE}${coverHref ?? ""}`,
+    imageWidth: 1200,
+    imageHeight: 630,
+    tags,
+    inLanguage: "zh-CN",
   });
+
+  jsonLd;
 
   const relatedArticles = await getArticleLinksInCategory(category);
 
@@ -175,7 +221,7 @@ export default async function Blog({ params }: { params: { blog: string } }) {
               <Ripple />
               <div className="flex gap-1 items-center">
                 <Icon>Person</Icon>
-                <span>Apryes</span>
+                <span>Apry</span>
               </div>
               <div className="flex gap-1 items-center">
                 <Icon>Date_Range</Icon>
