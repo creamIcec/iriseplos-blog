@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 async function purgeCloudflare(urls: string[]) {
   const zoneId = process.env.CF_ZONE_ID!;
-  const token = process.env.CF_API_TOKEN!; // 需要有 Cache Purge 权限
+  const token = process.env.CF_API_TOKEN!;
   await fetch(
     `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
     {

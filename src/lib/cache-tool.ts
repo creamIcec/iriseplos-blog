@@ -15,10 +15,9 @@ export function cacheAccessFactory<T extends AsyncFn>(
 ): T {
   const isProd = process.env.NODE_ENV === "production";
 
-  console.log("isProd", isProd);
-
   if (isProd) {
     // 生产: 用 next/cache 的数据缓存(ISR)
+    // 如果来源页面启用了"force-static", 则会直接使用预渲染好的页面数据, 不会再访问第二次
     // 说明: unstable_cache 会把 "参数值" 一并纳入键; keyParts 只是前缀
     const cached = unstable_cache(accessor, keyParts, {
       revalidate: revalidateTime,
