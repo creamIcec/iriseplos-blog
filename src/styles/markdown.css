@@ -158,13 +158,14 @@
 
 /* 引用 */
 .markdown-content blockquote {
-  @apply border-l-4 border-primary pl-4 my-6 bg-surface-container-low rounded-r-lg py-3;
+  @apply border-l-4 border-primary pl-4 my-6 bg-surface-container-low rounded-r-lg py-3 text-wrap;
 }
 
 .markdown-content blockquote p {
   @apply text-on-surface-variant italic mb-0;
   font-size: 1rem;
   line-height: 1.6;
+  word-break: break-all;
 }
 
 .markdown-content blockquote::before {
