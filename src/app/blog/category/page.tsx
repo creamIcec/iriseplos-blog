@@ -1,10 +1,12 @@
 import CategoryAccordin from "@/components/client/category-accordin";
 import Cover from "@/components/cover";
+
 import {
   ArticleLink,
   getArticleLinksInCategory,
 } from "@/lib/blog-data/category-relation-data";
 import { getCategories } from "@/lib/blog-data/statistics";
+
 import { Metadata } from "next";
 
 export const revalidate = 600;

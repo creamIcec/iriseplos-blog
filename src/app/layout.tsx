@@ -6,15 +6,15 @@ import {
   robotoMono,
 } from "@/utils/fonts";
 
-import "katex/dist/katex.min.css";
-import "./globals.css";
-
 import Header from "@/components/client/header";
 import Footer from "@/components/footer";
 import { ThemeProvider } from "next-themes";
 import Cursor from "@/components/ux/cursor";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+
+import "katex/dist/katex.min.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
