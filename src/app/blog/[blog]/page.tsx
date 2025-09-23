@@ -24,6 +24,17 @@ export async function generateStaticParams() {
   return names.map((s) => ({ blog: s }));
 }
 
+function toAbsUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    // 已是绝对 URL
+    return new URL(url).toString();
+  } catch {
+    // 不是绝对的，当作站内路径拼接
+    return `${SITE}${url.startsWith("/") ? url : `/${url}`}`;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -32,26 +43,51 @@ export async function generateMetadata({
   const { blog } = await params;
   const data = await getPostData(blog);
 
-  if (data === undefined) {
+  if (!data) {
     return {
       title: "欢迎随时回来。",
     };
   }
 
   const url = `${SITE}/blog/${blog}`;
+  const title = data.title;
+  const description = data.subtitle || `阅读关于 ${data.title} 的文章`;
+  const imageAbs = toAbsUrl(data.coverHref) || "";
+  const imageAlt = data.coverAlt || data.title;
 
   return {
-    title: `${data.title}`,
-    description: data.subtitle || `阅读关于 ${data.title} 的文章`,
-    openGraph: {
-      title: data.title,
-      description: data.subtitle || `阅读关于 ${data.title} 的文章`,
-      type: "article",
-      publishedTime: data.datetime,
-      tags: data.tags,
-    },
+    metadataBase: new URL(SITE),
+
+    title,
+    description,
+
     alternates: {
       canonical: url,
+    },
+
+    openGraph: {
+      type: "article",
+      url,
+      siteName: "Apry的笔记本",
+      title,
+      description,
+      publishedTime: data.datetime,
+      tags: data.tags,
+      images: [
+        {
+          url: imageAbs,
+          width: 1200,
+          height: 630,
+          alt: imageAlt,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageAbs],
     },
   };
 }
@@ -156,8 +192,6 @@ export default async function Blog({ params }: { params: { blog: string } }) {
     tags,
     inLanguage: "zh-CN",
   });
-
-  jsonLd;
 
   const relatedArticles = await getArticleLinksInCategory(category);
 
