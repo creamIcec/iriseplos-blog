@@ -10,7 +10,7 @@ import clsx from "clsx";
 import Link from "next/link";
 
 import { useWindowSize } from "@/hooks/useWindowSize";
-import Search from "../search";
+import Search from "./search/search";
 import { ThemeChanger } from "../theme-changer";
 import UrlCopyButton from "./url-copy-button";
 

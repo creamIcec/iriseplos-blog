@@ -2,11 +2,14 @@ import BlogTitleSetter from "@/components/client/blog-title-setter";
 import CategoryLink from "@/components/client/category-link";
 import CodeToolbarClient from "@/components/client/code-toolbar";
 import Cover from "@/components/cover";
+import Divider from "@/components/custom/Divider";
 import TOC from "@/components/toc";
+
 import { listArticles } from "@/lib/blog-data/blog-data-service";
 import { getArticleLinksInCategory } from "@/lib/blog-data/category-relation-data";
 import { SITE } from "@/lib/CONSTANTS";
 import { getPostData } from "@/lib/markdown-data";
+
 import { Card, Icon, List, ListItem, Ripple } from "actify";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -210,7 +213,7 @@ export default async function Blog({ params }: { params: { blog: string } }) {
           </div>
         </aside>
 
-        <div className="w-px bg-outline-variant ml-4 mr-4 self-stretch hidden md:block" />
+        <Divider />
 
         <main className="flex flex-col flex-1 min-w-0">
           {/*标题部分*/}

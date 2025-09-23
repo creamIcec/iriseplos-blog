@@ -1,6 +1,7 @@
 import Calendar from "@/components/client/calendar";
 import ContentCard from "@/components/content-card";
 import Cover from "@/components/cover";
+import Divider from "@/components/custom/Divider";
 import Profile from "@/components/profile";
 import SectionTitle from "@/components/section-title";
 import EasterEggAvatar from "@/components/ux/easter-egg/easter-egg-avatar";
@@ -49,7 +50,7 @@ export default async function Home() {
                 <span>文章</span>
                 <span>{articleCount}</span>
               </div>
-              <div className="w-px bg-outline-variant ml-4 mr-4 self-stretch" />
+              <Divider responsiveHidden={false} />
 
               <Link href="/blog/category">
                 <div className="flex flex-col gap-1 items-center">
@@ -57,7 +58,9 @@ export default async function Home() {
                   <span>{categoryCount}</span>
                 </div>
               </Link>
-              <div className="w-px bg-outline-variant ml-4 mr-4 self-stretch" />
+
+              <Divider responsiveHidden={false} />
+
               <div className="flex flex-col gap-1 items-center">
                 <span>标签</span>
                 <span>{tagCount}</span>
@@ -66,7 +69,7 @@ export default async function Home() {
           </Card>
         </aside>
 
-        <div className="hidden md:block w-px bg-outline-variant ml-4 mr-4 self-stretch" />
+        <Divider />
 
         <div className="flex flex-col gap-4 pt-2 pb-4 flex-4 text-on-surface">
           <section className="md:pl-8 flex flex-col flex-wrap gap-4">
@@ -92,7 +95,10 @@ export default async function Home() {
           <section className="md:pl-8 flex flex-col flex-wrap gap-2">
             <SectionTitle title="分类" className="text-center md:text-start" />
             <Link href="/blog/category">
-              <div className="ml-4 pt-4 pb-4 rounded-4xl hover:bg-secondary-container flex flex-row flex-wrap gap-4 relative sm:right-0 md:right-4 min-w-64 max-w-192 cursor-pointer items-center">
+              <div
+                aria-label="Check categories"
+                className="ml-4 pt-4 pb-4 rounded-4xl hover:bg-secondary-container flex flex-row flex-wrap gap-4 relative sm:right-0 md:right-4 min-w-64 max-w-192 cursor-pointer items-center"
+              >
                 <Ripple />
                 <h4 className="pl-4 text-xl">点击查看分类</h4>
                 <Icon>Arrow_Forward</Icon>

@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     ? `/blog/${sorted[0].filename}`
     : "/";
 
-  // 基于当前请求构造"绝对 URL"(Next.js中间件重定向仅支持绝对URL)
   const url = req.nextUrl.clone();
   url.pathname = targetPath;
   url.search = "";

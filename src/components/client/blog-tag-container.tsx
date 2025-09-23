@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Actify的ChipGroup使用
 
 import { ChipGroup, ChipItem } from "actify";
 

@@ -8,13 +8,14 @@ export const metadata: Metadata = {
   title: "文章",
 };
 
+// 从/blog -> 最新/blog/[blog]
 export async function GET(req: NextRequest) {
   const sorted = await getSortedBlogMetadata();
   const targetPath = sorted?.[0]?.filename
     ? `/blog/${sorted[0].filename}`
     : "/";
 
-  // 基于当前请求构造"绝对 URL"(Next.js中间件重定向仅支持绝对URL)
+  // 基于当前请求构造"绝对 URL"
   const url = req.nextUrl.clone();
   url.pathname = targetPath;
   url.search = "";

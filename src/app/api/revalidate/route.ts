@@ -20,6 +20,9 @@ async function purgeCloudflare(urls: string[]) {
 }
 
 export async function POST(req: NextRequest) {
+  // 需要刷新的路由:
+  // "/", "/blog/[blog]", "/blog", "/blog/category"
+
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.replace(/^Bearer\s+/i, "");
   if (token !== process.env.REVALIDATE_TOKEN) {
