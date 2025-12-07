@@ -11,7 +11,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "主页 | Apry的笔记本",
+  title: "主页 | Apry的笔记本 | 记录更好的自己",
 };
 
 // app/page.tsx

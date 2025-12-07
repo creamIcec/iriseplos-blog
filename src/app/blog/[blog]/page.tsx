@@ -162,7 +162,6 @@ export default async function Blog({ params }: { params: { blog: string } }) {
     <>
       <script
         type="application/ld+json"
-        // serialize(..., { isJSON: true }) 会安全转义 < > & \u2028 \u2029 等危险字符
         dangerouslySetInnerHTML={{
           __html: serialize(jsonLd, { isJSON: true }),
         }}
