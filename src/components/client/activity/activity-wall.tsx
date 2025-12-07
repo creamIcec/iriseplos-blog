@@ -7,8 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 // 输入数据类型：YYYY-MM-DD -> 当天更新次数
 export type ActivityMap = Record<string, number>;
 
-type Props = {
+type ActivityWallProps = {
   data?: ActivityMap;
+  error?: string;
   endDate?: Date; // 结束日期(含), 默认今天
   weeks?: number; // 展示多少周
   weekStartsOn?: 0 | 1; // 0=周日开头, 1=周一
@@ -87,9 +88,9 @@ const levelClasses = [
   "bg-primary/85",
 ];
 
-// 简单的媒体查询 Hook
+// 媒体查询 Hook: 检查是否 >= 768px (对应tailwind md:xxx)
 function useIsMdUp() {
-  const [isMdUp, setIsMdUp] = useState<boolean | null>(null); // null: 未知（首屏SSR）
+  const [isMdUp, setIsMdUp] = useState<boolean | null>(null); // null: 未知(首屏SSR)
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 768px)");
     const handler = () => setIsMdUp(mql.matches);
@@ -102,6 +103,7 @@ function useIsMdUp() {
 
 export default function ActivityWall({
   data,
+  error,
   endDate = new Date(),
   weeks = 53,
   weekStartsOn = 0,
@@ -109,9 +111,9 @@ export default function ActivityWall({
   className,
   title = "博客更新状态",
   onTileClick,
-  orientation, // 可选强制覆盖
-}: Props) {
-  // 自动方向（默认：md 以下竖直，md 及以上横向）
+  orientation, // (可选)强制覆盖
+}: ActivityWallProps) {
+  // 自动方向(md 以下竖直, md 及以上横向)
   const isMdUp = useIsMdUp();
   const autoOrientation: "horizontal" | "vertical" =
     orientation ??
@@ -122,6 +124,7 @@ export default function ActivityWall({
     () => startOfWeek(endDate, weekStartsOn),
     [endDate, weekStartsOn]
   );
+
   const start = useMemo(() => {
     const s = new Date(endWeekStart);
     s.setDate(s.getDate() - (weeks - 1) * 7);
@@ -389,7 +392,7 @@ export default function ActivityWall({
       ) : (
         <Card>
           <h3 className="text-error text-xl">
-            无法加载博客活动数据, 请稍候再试试。
+            无法加载博客活动数据: {error || "原因未知。"} 请稍候再试试。
             <br />
             如果多次出现, 直接来仓库开Issue砸我。
           </h3>
@@ -405,7 +408,7 @@ function renderTile(
   data: ActivityMap,
   levels: number[],
   endDate: Date,
-  onTileClick: Props["onTileClick"],
+  onTileClick: ActivityWallProps["onTileClick"],
   TILE: number
 ) {
   const key = fmt(day);

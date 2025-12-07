@@ -14,7 +14,6 @@ export default function UrlCopyButton({
   className,
 }: UrlCopyButtonProps) {
   const [copied, setCopied] = useState(false);
-  // 使用 ref 记录当前的 toast key，避免依赖 toastState
   const toastKeyRef = useRef<string | number | undefined>(undefined);
 
   const copyCurrentUrl = async () => {
@@ -32,7 +31,7 @@ export default function UrlCopyButton({
       return;
     }
 
-    // 只在 copied 变为 true 时添加 toast
+    // 复制成功, 更新key
     toastKeyRef.current = toastState.add("复制成功~", {
       timeout: 3000,
     });
@@ -40,12 +39,13 @@ export default function UrlCopyButton({
     // 清理函数
     return () => {
       if (toastKeyRef.current && toastState) {
+        // 关闭创建的toast
         toastState.close(toastKeyRef.current.toString());
         toastKeyRef.current = undefined;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [copied]); // 移除 toastState 依赖
+  }, [copied]); // 没有 toastState 依赖: 从父组件传入, 无需进行显式的依赖。只需记录当前的toastKey保证不重复即可。
 
   return (
     <>

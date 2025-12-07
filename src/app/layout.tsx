@@ -6,15 +6,16 @@ import {
   robotoMono,
 } from "@/utils/fonts";
 
-import "katex/dist/katex.min.css";
-import "./globals.css";
-
 import Header from "@/components/client/header";
 import Footer from "@/components/footer";
 import { ThemeProvider } from "next-themes";
 import Cursor from "@/components/ux/cursor";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+
+import "katex/dist/katex.min.css";
+import "./globals.css";
+import { SITE } from "@/lib/CONSTANTS";
 
 export const metadata: Metadata = {
   title: {
@@ -27,8 +28,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_CN",
-    url: "https://yourdomain.com",
+    url: "https://blog.irise.top",
     siteName: "Arpy的博客",
+    images: [
+      {
+        url: `${SITE}/cover/default-cover.webp`,
+        width: 1200,
+        height: 630,
+        alt: "Arpy的博客封面",
+      },
+    ],
   },
 };
 

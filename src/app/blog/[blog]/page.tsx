@@ -2,11 +2,14 @@ import BlogTitleSetter from "@/components/client/blog-title-setter";
 import CategoryLink from "@/components/client/category-link";
 import CodeToolbarClient from "@/components/client/code-toolbar";
 import Cover from "@/components/cover";
+import Divider from "@/components/custom/Divider";
 import TOC from "@/components/toc";
+
 import { listArticles } from "@/lib/blog-data/blog-data-service";
 import { getArticleLinksInCategory } from "@/lib/blog-data/category-relation-data";
 import { SITE } from "@/lib/CONSTANTS";
 import { getPostData } from "@/lib/markdown-data";
+
 import { Card, Icon, List, ListItem, Ripple } from "actify";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -21,6 +24,17 @@ export async function generateStaticParams() {
   return names.map((s) => ({ blog: s }));
 }
 
+function toAbsUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    // 已是绝对 URL
+    return new URL(url).toString();
+  } catch {
+    // 不是绝对的，当作站内路径拼接
+    return `${SITE}${url.startsWith("/") ? url : `/${url}`}`;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -29,26 +43,51 @@ export async function generateMetadata({
   const { blog } = await params;
   const data = await getPostData(blog);
 
-  if (data === undefined) {
+  if (!data) {
     return {
       title: "欢迎随时回来。",
     };
   }
 
   const url = `${SITE}/blog/${blog}`;
+  const title = data.title;
+  const description = data.subtitle || `阅读关于 ${data.title} 的文章`;
+  const imageAbs = toAbsUrl(data.coverHref) || "";
+  const imageAlt = data.coverAlt || data.title;
 
   return {
-    title: `${data.title}`,
-    description: data.subtitle || `阅读关于 ${data.title} 的文章`,
-    openGraph: {
-      title: data.title,
-      description: data.subtitle || `阅读关于 ${data.title} 的文章`,
-      type: "article",
-      publishedTime: data.datetime,
-      tags: data.tags,
-    },
+    metadataBase: new URL(SITE),
+
+    title,
+    description,
+
     alternates: {
       canonical: url,
+    },
+
+    openGraph: {
+      type: "article",
+      url,
+      siteName: "Apry的笔记本",
+      title,
+      description,
+      publishedTime: data.datetime,
+      tags: data.tags,
+      images: [
+        {
+          url: imageAbs,
+          width: 1200,
+          height: 630,
+          alt: imageAlt,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageAbs],
     },
   };
 }
@@ -154,8 +193,6 @@ export default async function Blog({ params }: { params: { blog: string } }) {
     inLanguage: "zh-CN",
   });
 
-  jsonLd;
-
   const relatedArticles = await getArticleLinksInCategory(category);
 
   return (
@@ -209,7 +246,7 @@ export default async function Blog({ params }: { params: { blog: string } }) {
           </div>
         </aside>
 
-        <div className="w-px bg-outline-variant ml-4 mr-4 self-stretch hidden md:block" />
+        <Divider />
 
         <main className="flex flex-col flex-1 min-w-0">
           {/*标题部分*/}
